@@ -1,6 +1,7 @@
 "use client";
 
 import { UserCircle, Phone, Mail, AlertTriangle, Calendar } from "lucide-react";
+import Link from "next/link";
 
 interface PatientCardProps {
   patient: {
@@ -95,9 +96,12 @@ export default function PatientCard({ patient }: PatientCardProps) {
 
       {/* Actions */}
       <div className="px-4 py-3 border-t border-gray-100 flex gap-2">
-        <button className="flex-1 px-3 py-1.5 text-xs font-medium bg-primary text-white rounded hover:bg-primary-dark transition-colors">
+        <Link
+          href={`/patients/${patient.id}`}
+          className="flex-1 px-3 py-1.5 text-xs font-medium bg-primary text-white rounded hover:bg-primary-dark transition-colors text-center"
+        >
           Open Chart
-        </button>
+        </Link>
         <button className="flex-1 px-3 py-1.5 text-xs font-medium bg-white text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors">
           Schedule
         </button>

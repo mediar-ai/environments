@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import {
   User,
   Phone,
@@ -124,10 +124,15 @@ const tabs = [
 
 export default function PatientChart() {
   const params = useParams();
+  const router = useRouter();
   const patientId = params.id as string;
   const patient = patientData[patientId] || patientData["MRN-4521"];
 
   const [activeTab, setActiveTab] = useState("summary");
+
+  const openInWord = (noteId: string) => {
+    router.push(`/word-editor/${patientId}/${noteId}`);
+  };
 
   const StatusBadge = ({ status }: { status: string }) => {
     const colors: Record<string, string> = {
@@ -178,7 +183,10 @@ export default function PatientChart() {
           </p>
         </div>
         <div className="flex gap-2">
-          <button className="px-3 py-1.5 text-sm font-medium bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors flex items-center gap-1">
+          <button
+            onClick={() => openInWord(patient.notes[0]?.id || "N001")}
+            className="px-3 py-1.5 text-sm font-medium bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors flex items-center gap-1"
+          >
             <FileEdit size={14} />
             Open in Word
           </button>
@@ -479,7 +487,10 @@ export default function PatientChart() {
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="font-semibold text-gray-800">Clinical Notes</h3>
                     <div className="flex gap-2">
-                      <button className="px-3 py-1.5 text-sm font-medium bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors flex items-center gap-1">
+                      <button
+                        onClick={() => openInWord(patient.notes[0]?.id || "N001")}
+                        className="px-3 py-1.5 text-sm font-medium bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors flex items-center gap-1"
+                      >
                         <FileEdit size={14} />
                         Open in Word
                       </button>
@@ -503,7 +514,10 @@ export default function PatientChart() {
                         </div>
                         <p className="text-sm text-gray-600 mb-3">{n.summary}</p>
                         <div className="flex gap-2 pt-2 border-t border-gray-100">
-                          <button className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors flex items-center gap-1">
+                          <button
+                            onClick={() => openInWord(n.id)}
+                            className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors flex items-center gap-1"
+                          >
                             <FileEdit size={12} />
                             Edit in Word
                           </button>
@@ -513,7 +527,10 @@ export default function PatientChart() {
                               Sign Note
                             </button>
                           )}
-                          <button className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors flex items-center gap-1">
+                          <button
+                            onClick={() => openInWord(n.id)}
+                            className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors flex items-center gap-1"
+                          >
                             <Upload size={12} />
                             Upload to EMR
                           </button>

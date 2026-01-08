@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import {
   Users,
   Calendar,
@@ -177,6 +178,8 @@ const PriorityBadge = ({ priority }: { priority: string }) => {
 };
 
 export default function Dashboard() {
+  const router = useRouter();
+
   const appointmentColumns = [
     { key: "time", header: "Time", width: "80px" },
     { key: "patient", header: "Patient" },
@@ -238,7 +241,7 @@ export default function Dashboard() {
         <DataTable
           columns={appointmentColumns}
           data={todayAppointments}
-          onRowClick={(row) => console.log("Clicked:", row)}
+          onRowClick={(row) => router.push(`/patients/${row.mrn}`)}
         />
       ),
     },
@@ -272,7 +275,7 @@ export default function Dashboard() {
         <DataTable
           columns={noteSignoffColumns}
           data={notesPendingSignoff}
-          onRowClick={(row) => console.log("Clicked:", row)}
+          onRowClick={(row) => router.push(`/patients/${row.mrn}`)}
         />
       ),
     },
