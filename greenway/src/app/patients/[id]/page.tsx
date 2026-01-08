@@ -131,17 +131,15 @@ export default function PatientChart() {
   const [activeTab, setActiveTab] = useState("summary");
 
   const openInWord = (noteId: string) => {
-    // Get the document URL
-    const docUrl = `${window.location.origin}/api/document/${patientId}/${noteId}`;
-
-    // Try to open in Microsoft Word using the ms-word: protocol
-    // This will launch the real Word application
-    const msWordUrl = `ms-word:ofe|u|${docUrl}`;
-
-    // Create a hidden link and click it to trigger the protocol
+    // Download the .docx file - browser will download and user can open it
+    // Using a hidden anchor with download attribute to trigger download without leaving page
+    const docUrl = `/api/document/${patientId}/${noteId}`;
     const link = document.createElement("a");
-    link.href = msWordUrl;
+    link.href = docUrl;
+    link.download = ""; // Let server set the filename
+    document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link);
   };
 
   const StatusBadge = ({ status }: { status: string }) => {
