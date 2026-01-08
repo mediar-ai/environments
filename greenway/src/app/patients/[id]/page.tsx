@@ -131,7 +131,17 @@ export default function PatientChart() {
   const [activeTab, setActiveTab] = useState("summary");
 
   const openInWord = (noteId: string) => {
-    router.push(`/word-editor/${patientId}/${noteId}`);
+    // Get the document URL
+    const docUrl = `${window.location.origin}/api/document/${patientId}/${noteId}`;
+
+    // Try to open in Microsoft Word using the ms-word: protocol
+    // This will launch the real Word application
+    const msWordUrl = `ms-word:ofe|u|${docUrl}`;
+
+    // Create a hidden link and click it to trigger the protocol
+    const link = document.createElement("a");
+    link.href = msWordUrl;
+    link.click();
   };
 
   const StatusBadge = ({ status }: { status: string }) => {
