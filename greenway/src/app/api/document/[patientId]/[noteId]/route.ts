@@ -7,6 +7,9 @@ import {
   HeadingLevel,
   AlignmentType,
 } from "docx";
+import { exec } from "child_process";
+import { writeFile, mkdir } from "fs/promises";
+import path from "path";
 
 // Mock patient/note data (same as in pages)
 const patientData: Record<string, any> = {
@@ -256,5 +259,76 @@ export async function GET(
       "Content-Type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
       "Content-Disposition": `attachment; filename="${filename}"`,
     },
+  });
+}
+
+// POST: Save file and open in Word (single click)
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ patientId: string; noteId: string }> }
+) {
+  const { patientId, noteId } = await params;
+
+  const patient = patientData[patientId];
+  const note = patient?.notes?.[noteId];
+
+  if (!patient || !note) {
+    return NextResponse.json({ error: "Note not found" }, { status: 404 });
+  }
+
+  // Generate the document (same as GET)
+  const lines = note.content.split("\n");
+  const paragraphs: Paragraph[] = [];
+
+  for (const line of lines) {
+    if (line.trim() === "") {
+      paragraphs.push(new Paragraph({ text: "" }));
+    } else if (line === line.toUpperCase() && line.trim().endsWith(":")) {
+      paragraphs.push(
+        new Paragraph({
+          children: [new TextRun({ text: line, bold: true, size: 24 })],
+          spacing: { before: 200, after: 100 },
+        })
+      );
+    } else if (line.startsWith("Patient:") || line.startsWith("MRN:") || line.startsWith("Date of Service:") || line.startsWith("Provider:")) {
+      paragraphs.push(new Paragraph({ children: [new TextRun({ text: line, size: 22 })] }));
+    } else if (line.match(/^\d+\./)) {
+      paragraphs.push(new Paragraph({ children: [new TextRun({ text: line, size: 22 })], indent: { left: 360 } }));
+    } else if (line.startsWith("   -")) {
+      paragraphs.push(new Paragraph({ children: [new TextRun({ text: line.trim(), size: 22 })], indent: { left: 720 } }));
+    } else if (line.includes("PROGRESS NOTE") || line.includes("OFFICE VISIT") || line.includes("NEW PATIENT")) {
+      paragraphs.push(
+        new Paragraph({
+          children: [new TextRun({ text: line, bold: true, size: 32 })],
+          alignment: AlignmentType.CENTER,
+          spacing: { after: 300 },
+        })
+      );
+    } else {
+      paragraphs.push(new Paragraph({ children: [new TextRun({ text: line, size: 22 })] }));
+    }
+  }
+
+  const doc = new Document({ sections: [{ properties: {}, children: paragraphs }] });
+  const buffer = await Packer.toBuffer(doc);
+
+  // Save to temp directory
+  const tempDir = path.join(process.env.TEMP || "/tmp", "greenway-notes");
+  await mkdir(tempDir, { recursive: true });
+
+  const filename = `${patient.name} - ${note.type} - ${note.date}.docx`.replace(/\//g, "-");
+  const filePath = path.join(tempDir, filename);
+
+  await writeFile(filePath, buffer);
+
+  // Open in Word
+  return new Promise((resolve) => {
+    exec(`start "" "${filePath}"`, (error) => {
+      if (error) {
+        resolve(NextResponse.json({ error: "Failed to open Word", details: error.message }, { status: 500 }));
+      } else {
+        resolve(NextResponse.json({ success: true, filePath }));
+      }
+    });
   });
 }

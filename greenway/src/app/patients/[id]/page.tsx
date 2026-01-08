@@ -130,16 +130,18 @@ export default function PatientChart() {
 
   const [activeTab, setActiveTab] = useState("summary");
 
-  const openInWord = (noteId: string) => {
-    // Download the .docx file - browser will download and user can open it
-    // Using a hidden anchor with download attribute to trigger download without leaving page
-    const docUrl = `/api/document/${patientId}/${noteId}`;
-    const link = document.createElement("a");
-    link.href = docUrl;
-    link.download = ""; // Let server set the filename
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const openInWord = async (noteId: string) => {
+    // POST to save file and open Word directly (single click)
+    try {
+      const response = await fetch(`/api/document/${patientId}/${noteId}`, {
+        method: "POST",
+      });
+      if (!response.ok) {
+        console.error("Failed to open Word");
+      }
+    } catch (error) {
+      console.error("Error opening Word:", error);
+    }
   };
 
   const StatusBadge = ({ status }: { status: string }) => {
