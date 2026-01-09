@@ -4,6 +4,7 @@ Open-source, pixel-perfect UI clones of legacy enterprise software for demos, te
 
 ![SAP](https://img.shields.io/badge/SAP-Business%20One%20%7C%20S%2F4HANA-orange)
 ![Greenway](https://img.shields.io/badge/Greenway-Prime%20Suite%20EHR-green)
+![LC360](https://img.shields.io/badge/LC360-Loss%20Control%20360-blue)
 ![Next.js](https://img.shields.io/badge/Next.js-16-black)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
@@ -13,6 +14,7 @@ Open-source, pixel-perfect UI clones of legacy enterprise software for demos, te
 |-------------|-------------|------|
 | [SAP](/sap) | SAP Business One & S/4HANA | Journal Entry, Invoices, G/L Line Items |
 | [Greenway](/greenway) | Greenway Prime Suite EHR | Patient charts, encounters, scheduling |
+| [LC360](/lc360) | Utilant LossControl360 | Survey list, 1005 UW Survey form |
 
 ## Quick Start
 
@@ -27,6 +29,10 @@ cd sap && bun install && bun dev
 
 # Or run Greenway environment
 cd greenway && bun install && bun dev
+# Open http://localhost:3000
+
+# Or run LC360 environment
+cd lc360 && bun install && bun dev
 # Open http://localhost:3000
 ```
 
@@ -57,6 +63,21 @@ Clone of Greenway Prime Suite EHR (Electronic Health Records) system.
 - Clinical encounter forms
 - Scheduling views
 - Medical record navigation
+
+## LC360 Environment
+
+Clone of Utilant LossControl360 - insurance loss control workflow management system.
+
+- Survey list with search/filter by status
+- 1005 UW Survey (Underwriter Survey) form:
+  - Property information (address, year built, sqft, construction type)
+  - Standard description paragraph template
+  - Building features checklist (46 items across 6 categories)
+  - Building sketch / aerial photo upload
+- New survey creation workflow
+- Pre-filled checkboxes for efficient form completion
+
+**Use Case**: Commercial property inspections for insurance companies. Automates repetitive form-filling that typically takes 20-30 minutes per form.
 
 ## Use Cases
 
@@ -100,6 +121,10 @@ environments/
 │   ├── src/app/
 │   └── src/components/     # EHR UI components
 │
+├── lc360/                  # Utilant LossControl360
+│   └── src/app/
+│       └── page.tsx        # Survey list + 1005 UW form
+│
 └── README.md               # This file
 ```
 
@@ -124,7 +149,7 @@ To add a new environment:
 
 ## Disclaimer
 
-These are **unofficial** UI mockups for educational and demo purposes only. All product names, logos, and brands are property of their respective owners. This project is not affiliated with, endorsed by, or connected to SAP SE, Greenway Health, or any other software vendor.
+These are **unofficial** UI mockups for educational and demo purposes only. All product names, logos, and brands are property of their respective owners. This project is not affiliated with, endorsed by, or connected to SAP SE, Greenway Health, Utilant, or any other software vendor.
 
 ## License
 
