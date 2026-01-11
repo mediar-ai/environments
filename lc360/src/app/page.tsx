@@ -32,11 +32,11 @@ const surveys = [
   { id: "162923", policy: "ASPP2346", division: "Large Property Risk Engin...", companyName: "BASF Corporation", clientLocation: "BASF Corporate Offic...", surveyType: "New Business", status: "Needs Assessment", riskConsultant: "", locationStreet: "218 09 Farmingdale Place", location: "AU", locationCity: "Southampton", address: "218 09 Farmingdale Place, Southampton, AU 94501", yearBuilt: "2005", sqft: "45,000", stories: "3", construction: "Fire Resistive" },
   { id: "163025", policy: "ASPP2346", division: "Large Property Risk Engin...", companyName: "BASF Corporation", clientLocation: "BASF Corporation C...", surveyType: "1005 UW Survey", status: "Needs Assessment", riskConsultant: "", locationStreet: "707 Garth Avenue", location: "CA", locationCity: "San Luis Obispo", address: "707 Garth Avenue, San Luis Obispo, CA 93401", yearBuilt: "1987", sqft: "8,200", stories: "1", construction: "Wood Frame" },
   { id: "162633", policy: "CL454933...", division: "Commercial Lines", companyName: "Six Flags Entertainment C...", clientLocation: "Six Flags America MD...", surveyType: "1005 UW Survey", status: "Recommendation Review", riskConsultant: "Northwestern Insp...", locationStreet: "13710 Central Avenue", location: "US", locationCity: "Mitchellville", address: "13710 Central Avenue, Mitchellville, MD 20721", yearBuilt: "1974", sqft: "125,000", stories: "2", construction: "Masonry Non-Combustible" },
-  { id: "162623", policy: "CL44453...", division: "Commercial Lines", companyName: "Valley Auto Parts", clientLocation: "Main Warehouse", surveyType: "1005 UW Survey", status: "In Progress", riskConsultant: "Anita Morrison", locationStreet: "4521 Industrial Blvd", location: "CA", locationCity: "San Luis Obispo", address: "4521 Industrial Blvd, San Luis Obispo, CA 93401", yearBuilt: "1992", sqft: "15,800", stories: "1", construction: "Metal Building" },
+  { id: "162623", policy: "CL44453...", division: "Commercial Lines", companyName: "Valley Auto Parts", clientLocation: "Main Warehouse", surveyType: "1005 UW Survey", status: "In Progress", riskConsultant: "Jane Smith", locationStreet: "4521 Industrial Blvd", location: "CA", locationCity: "San Luis Obispo", address: "4521 Industrial Blvd, San Luis Obispo, CA 93401", yearBuilt: "1992", sqft: "15,800", stories: "1", construction: "Metal Building" },
   { id: "162621", policy: "CL454932...", division: "Commercial Lines", companyName: "Pacific Coast Brewing", clientLocation: "Production Facility", surveyType: "1005 UW Survey", status: "Assigned", riskConsultant: "Larry Chen", locationStreet: "892 Brewery Lane", location: "CA", locationCity: "Paso Robles", address: "892 Brewery Lane, Paso Robles, CA 93446", yearBuilt: "2001", sqft: "22,400", stories: "1", construction: "Masonry Non-Combustible" },
-  { id: "162619", policy: "CL45454...", division: "Commercial Lines", companyName: "Central Coast Medical", clientLocation: "Urgent Care Center", surveyType: "1005 UW Survey", status: "Assigned", riskConsultant: "Anita Morrison", locationStreet: "1205 Health Center Dr", location: "CA", locationCity: "Arroyo Grande", address: "1205 Health Center Dr, Arroyo Grande, CA 93420", yearBuilt: "2015", sqft: "6,500", stories: "1", construction: "Fire Resistive" },
+  { id: "162619", policy: "CL45454...", division: "Commercial Lines", companyName: "Central Coast Medical", clientLocation: "Urgent Care Center", surveyType: "1005 UW Survey", status: "Assigned", riskConsultant: "Jane Smith", locationStreet: "1205 Health Center Dr", location: "CA", locationCity: "Arroyo Grande", address: "1205 Health Center Dr, Arroyo Grande, CA 93420", yearBuilt: "2015", sqft: "6,500", stories: "1", construction: "Fire Resistive" },
   { id: "162019", policy: "CL454533...", division: "Commercial Lines", companyName: "Sunrise Senior Living", clientLocation: "Main Campus", surveyType: "1005 UW Survey", status: "Needs Assessment", riskConsultant: "", locationStreet: "3400 Sunset Ridge", location: "CA", locationCity: "Morro Bay", address: "3400 Sunset Ridge, Morro Bay, CA 93442", yearBuilt: "1988", sqft: "48,000", stories: "2", construction: "Wood Frame" },
-  { id: "147024", policy: "2390239023", division: "Large Property Risk Engin...", companyName: "Tech Solutions Inc", clientLocation: "HQ Office", surveyType: "1005 UW Survey", status: "Completed", riskConsultant: "Anita Morrison", locationStreet: "555 Innovation Way", location: "CA", locationCity: "San Luis Obispo", address: "555 Innovation Way, San Luis Obispo, CA 93405", yearBuilt: "2018", sqft: "18,200", stories: "2", construction: "Fire Resistive" },
+  { id: "147024", policy: "2390239023", division: "Large Property Risk Engin...", companyName: "Tech Solutions Inc", clientLocation: "HQ Office", surveyType: "1005 UW Survey", status: "Completed", riskConsultant: "Jane Smith", locationStreet: "555 Innovation Way", location: "CA", locationCity: "San Luis Obispo", address: "555 Innovation Way, San Luis Obispo, CA 93405", yearBuilt: "2018", sqft: "18,200", stories: "2", construction: "Fire Resistive" },
   { id: "160071", policy: "5277869AP", division: "Commercial Lines", companyName: "Coastal Fitness Center", clientLocation: "Main Gym", surveyType: "1005 UW Survey", status: "Needs Assignment", riskConsultant: "", locationStreet: "3680 Julie Ct", location: "CA", locationCity: "Pismo Beach", address: "3680 Julie Ct, Pismo Beach, CA 93449", yearBuilt: "2008", sqft: "12,000", stories: "1", construction: "Masonry Non-Combustible" },
 ];
 
@@ -49,6 +49,16 @@ const navItems = [
   { label: "TRAINING" },
   { label: "TIME" },
   { label: "HR REPORTS" },
+];
+
+// Survey types available for new surveys
+const surveyTypes = [
+  "1005 UW Survey",
+  "Service Visit",
+  "New Business",
+  "Recommendation Review",
+  "Loss Control Survey",
+  "Risk Assessment",
 ];
 
 // 1005 UW Survey form sections
@@ -131,16 +141,6 @@ const buildingFeaturesSections = [
   },
 ];
 
-// Survey types available for new surveys
-const surveyTypes = [
-  "1005 UW Survey",
-  "Service Visit",
-  "New Business",
-  "Recommendation Review",
-  "Loss Control Survey",
-  "Risk Assessment",
-];
-
 export default function LossControl360() {
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -155,7 +155,7 @@ export default function LossControl360() {
   // Form state
   const [formData, setFormData] = useState({
     propertyAddress: "",
-    inspectorName: "Anita Morrison",
+    inspectorName: "Jane Smith",
     inspectionDate: new Date().toISOString().split('T')[0],
     yearBuilt: "",
     squareFootage: "",
@@ -170,7 +170,8 @@ export default function LossControl360() {
     buildingFeaturesSections.map(s => s.title)
   );
 
-  const [formSaved, setFormSaved] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
 
   const toggleRow = (id: string) => {
     setSelectedRows((prev) =>
@@ -204,7 +205,7 @@ export default function LossControl360() {
 
     setFormData({
       propertyAddress: survey.address || `${survey.locationStreet}, ${survey.locationCity}, ${survey.location}`,
-      inspectorName: "Anita Morrison",
+      inspectorName: "Jane Smith",
       inspectionDate: new Date().toISOString().split('T')[0],
       yearBuilt: yearBuilt,
       squareFootage: survey.sqft || "10,000",
@@ -216,7 +217,6 @@ export default function LossControl360() {
     });
 
     setShowForm(true);
-    setFormSaved(false);
   };
 
   // Open new survey creation modal
@@ -244,7 +244,7 @@ export default function LossControl360() {
 
     setFormData({
       propertyAddress: "", // Empty - user must copy from main page
-      inspectorName: "Anita Morrison",
+      inspectorName: "Jane Smith",
       inspectionDate: new Date().toISOString().split('T')[0],
       yearBuilt: "", // Empty - user must get from external service
       squareFootage: "", // Empty - user must get from external service
@@ -256,7 +256,6 @@ export default function LossControl360() {
     });
 
     setShowForm(true);
-    setFormSaved(false);
   };
 
   const toggleSection = (title: string) => {
@@ -278,9 +277,15 @@ export default function LossControl360() {
   };
 
   const handleSaveForm = () => {
-    setFormSaved(true);
+    // Close the modal
+    setShowForm(false);
+    setIsNewSurvey(false);
+
+    // Show success toast
+    setToastMessage("Survey saved successfully!");
+    setShowToast(true);
     setTimeout(() => {
-      setFormSaved(false);
+      setShowToast(false);
     }, 3000);
   };
 
@@ -303,7 +308,7 @@ export default function LossControl360() {
         <div className="flex items-center gap-8">
           <div className="flex items-center gap-2">
             <span className="text-[10px] text-gray-300 uppercase tracking-wider">UTILANT</span>
-            <span className="text-lg font-semibold">LossControl360</span>
+            <span className="text-lg font-semibold">LossControl360 - EDITED</span>
           </div>
           <nav className="flex items-center gap-1">
             {navItems.map((item, i) => (
@@ -325,7 +330,7 @@ export default function LossControl360() {
               <User size={20} className="text-amber-700" />
             </div>
           </div>
-          <span className="text-sm font-medium">ANITA MORRISON</span>
+          <span className="text-sm font-medium">JANE SMITH</span>
           <ChevronDown size={14} />
         </div>
       </header>
@@ -487,23 +492,89 @@ export default function LossControl360() {
         </div>
       </footer>
 
+      {/* New Survey Type Selection Modal */}
+      {showNewSurveyModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white w-[500px] rounded-lg shadow-2xl">
+            <div className="bg-[#1e3a5f] text-white px-6 py-4 flex items-center justify-between rounded-t-lg">
+              <h2 className="text-xl font-semibold">Create New Survey</h2>
+              <button
+                onClick={() => setShowNewSurveyModal(false)}
+                className="p-1 hover:bg-white/20 rounded"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <div className="p-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Select Survey Type
+              </label>
+              <select
+                value={selectedSurveyType}
+                onChange={(e) => setSelectedSurveyType(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg text-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="">-- Select Type --</option>
+                <option value="1005 UW Survey">1005 UW Survey (Underwriter)</option>
+                <option value="1010 Commercial">1010 Commercial Property</option>
+                <option value="1015 Industrial">1015 Industrial Facility</option>
+                <option value="1020 Retail">1020 Retail Location</option>
+                <option value="1025 Restaurant">1025 Restaurant/Food Service</option>
+                <option value="1030 Office">1030 Office Building</option>
+              </select>
+              <div className="mt-6 flex justify-end gap-3">
+                <button
+                  onClick={() => setShowNewSurveyModal(false)}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    if (selectedSurveyType) {
+                      createNewSurvey();
+                    }
+                  }}
+                  disabled={!selectedSurveyType}
+                  className={`px-6 py-2 rounded font-medium ${
+                    selectedSurveyType
+                      ? "bg-[#27ae60] text-white hover:bg-[#229954]"
+                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  }`}
+                >
+                  Create Survey
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast Notification */}
+      {showToast && (
+        <div className="fixed bottom-6 right-6 z-[100] animate-in slide-in-from-bottom-4 duration-300">
+          <div className="bg-[#27ae60] text-white px-6 py-4 rounded-lg shadow-lg flex items-center gap-3">
+            <Check size={20} />
+            <span className="font-medium">{toastMessage}</span>
+          </div>
+        </div>
+      )}
+
       {/* 1005 UW Survey Form Modal */}
-      {showForm && selectedSurvey && (
+      {showForm && (selectedSurvey || isNewSurvey) && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white w-[95%] max-w-6xl h-[90vh] rounded-lg shadow-2xl flex flex-col">
             {/* Form Header */}
             <div className="bg-[#1e3a5f] text-white px-6 py-4 flex items-center justify-between rounded-t-lg">
               <div>
-                <h2 className="text-xl font-semibold">1005 UW Survey - Underwriter Form</h2>
-                <p className="text-sm text-gray-300">Survey ID: {selectedSurvey.id} | {selectedSurvey.companyName}</p>
+                <h2 className="text-xl font-semibold">{isNewSurvey ? `New ${selectedSurveyType}` : "1005 UW Survey - Underwriter Form"}</h2>
+                <p className="text-sm text-gray-300">
+                  {isNewSurvey 
+                    ? "New Survey - Fill in all required fields" 
+                    : `Survey ID: ${selectedSurvey?.id} | ${selectedSurvey?.companyName}`}
+                </p>
               </div>
               <div className="flex items-center gap-3">
-                {formSaved && (
-                  <div className="flex items-center gap-2 bg-green-500 px-3 py-1.5 rounded text-sm">
-                    <Check size={16} />
-                    Saved Successfully
-                  </div>
-                )}
                 <button
                   onClick={handleSaveForm}
                   className="flex items-center gap-2 bg-[#27ae60] hover:bg-[#229954] px-4 py-2 rounded text-sm font-medium"
@@ -512,7 +583,7 @@ export default function LossControl360() {
                   Save Form
                 </button>
                 <button
-                  onClick={() => setShowForm(false)}
+                  onClick={() => { setShowForm(false); setIsNewSurvey(false); }}
                   className="p-2 hover:bg-[#2d4a6f] rounded"
                 >
                   <X size={20} />
@@ -535,7 +606,7 @@ export default function LossControl360() {
                       <input
                         type="text"
                         value={formData.propertyAddress}
-                        onChange={(e) => setFormData({...formData, propertyAddress: e.target.value})}
+                        onChange={(e) => setFormData(prev => ({...prev, propertyAddress: e.target.value}))}
                         className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
                         placeholder="Enter property address"
                       />
@@ -546,7 +617,7 @@ export default function LossControl360() {
                       <input
                         type="text"
                         value={formData.inspectorName}
-                        onChange={(e) => setFormData({...formData, inspectorName: e.target.value})}
+                        onChange={(e) => setFormData(prev => ({...prev, inspectorName: e.target.value}))}
                         className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
                       />
                     </div>
@@ -555,7 +626,7 @@ export default function LossControl360() {
                       <input
                         type="date"
                         value={formData.inspectionDate}
-                        onChange={(e) => setFormData({...formData, inspectionDate: e.target.value})}
+                        onChange={(e) => setFormData(prev => ({...prev, inspectionDate: e.target.value}))}
                         className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
                       />
                     </div>
@@ -564,7 +635,7 @@ export default function LossControl360() {
                       <input
                         type="text"
                         value={formData.yearBuilt}
-                        onChange={(e) => setFormData({...formData, yearBuilt: e.target.value})}
+                        onChange={(e) => setFormData(prev => ({...prev, yearBuilt: e.target.value}))}
                         className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
                         placeholder="e.g., 1992"
                       />
@@ -575,7 +646,7 @@ export default function LossControl360() {
                       <input
                         type="text"
                         value={formData.squareFootage}
-                        onChange={(e) => setFormData({...formData, squareFootage: e.target.value})}
+                        onChange={(e) => setFormData(prev => ({...prev, squareFootage: e.target.value}))}
                         className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
                         placeholder="e.g., 12,500"
                       />
@@ -584,7 +655,7 @@ export default function LossControl360() {
                       <label className="block text-sm font-medium text-gray-700 mb-1">Number of Stories *</label>
                       <select
                         value={formData.numberOfStories}
-                        onChange={(e) => setFormData({...formData, numberOfStories: e.target.value})}
+                        onChange={(e) => setFormData(prev => ({...prev, numberOfStories: e.target.value}))}
                         className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
                       >
                         <option value="1">1 Story</option>
@@ -597,7 +668,7 @@ export default function LossControl360() {
                       <label className="block text-sm font-medium text-gray-700 mb-1">Construction Type *</label>
                       <select
                         value={formData.constructionType}
-                        onChange={(e) => setFormData({...formData, constructionType: e.target.value})}
+                        onChange={(e) => setFormData(prev => ({...prev, constructionType: e.target.value}))}
                         className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
                       >
                         <option value="Fire Resistive">Fire Resistive</option>
@@ -621,7 +692,7 @@ export default function LossControl360() {
                     <label className="block text-sm font-medium text-gray-700 mb-1">Standard Description Paragraph *</label>
                     <textarea
                       value={formData.standardParagraph}
-                      onChange={(e) => setFormData({...formData, standardParagraph: e.target.value})}
+                      onChange={(e) => setFormData(prev => ({...prev, standardParagraph: e.target.value}))}
                       rows={5}
                       className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm"
                       placeholder="Enter property description..."
@@ -664,12 +735,12 @@ export default function LossControl360() {
                         {expandedSections.includes(section.title) && (
                           <div className="p-4 grid grid-cols-2 gap-3">
                             {section.items.map((item) => (
-                              <label
+                              <div
                                 key={item.id}
                                 className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded cursor-pointer"
+                                onClick={() => toggleCheckbox(item.id)}
                               >
-                                <button
-                                  onClick={() => toggleCheckbox(item.id)}
+                                <div
                                   className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${
                                     formData.checkboxes[item.id]
                                       ? "bg-[#27ae60] border-[#27ae60] text-white"
@@ -677,9 +748,9 @@ export default function LossControl360() {
                                   }`}
                                 >
                                   {formData.checkboxes[item.id] && <Check size={14} />}
-                                </button>
+                                </div>
                                 <span className="text-sm text-gray-700">{item.label}</span>
-                              </label>
+                              </div>
                             ))}
                           </div>
                         )}
@@ -708,7 +779,7 @@ export default function LossControl360() {
                       <input
                         type="text"
                         value={formData.buildingSketchNote}
-                        onChange={(e) => setFormData({...formData, buildingSketchNote: e.target.value})}
+                        onChange={(e) => setFormData(prev => ({...prev, buildingSketchNote: e.target.value}))}
                         className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
                         placeholder="e.g., Aerial photograph provided"
                       />
@@ -726,7 +797,7 @@ export default function LossControl360() {
                   </div>
                   <div className="flex items-center gap-3">
                     <button
-                      onClick={() => setShowForm(false)}
+                      onClick={() => { setShowForm(false); setIsNewSurvey(false); }}
                       className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50"
                     >
                       Cancel
