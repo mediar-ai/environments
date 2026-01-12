@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Greenway Health EMR</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f3f4f6; }
+
+    :root {
+      --primary: #059669;
+      --primary-dark: #047857;
+      --sidebar-bg: #1f2937;
+      --sidebar-hover: #374151;
+    }
+
+    /* Layout */
+    .app { display: flex; min-height: 100vh; }
+
+    /* Sidebar */
+    .sidebar {
+      width: 224px;
+      background: var(--sidebar-bg);
+      color: #e5e7eb;
+      display: flex;
+      flex-direction: column;
+    }
+    .sidebar-header {
+      height: 48px;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      border-bottom: 1px solid #374151;
+    }
+    .sidebar-logo {
+      width: 24px;
+      height: 24px;
+      background: #059669;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 12px;
+    }
+    .sidebar-title { margin-left: 8px; font-weight: 600; font-size: 14px; color: white; }
+
+    .nav { flex: 1; padding: 8px 0; overflow-y: auto; }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 12px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .nav-item:hover { background: var(--sidebar-hover); }
+    .nav-item.active { background: var(--sidebar-hover); border-left: 2px solid var(--primary); }
+    .nav-icon { width: 18px; opacity: 0.7; }
+    .nav-submenu { background: rgba(0,0,0,0.2); }
+    .nav-submenu .nav-item { padding-left: 40px; font-size: 12px; color: #9ca3af; }
+    .nav-submenu .nav-item:hover { color: white; }
+
+    /* Main Content */
+    .main { flex: 1; display: flex; flex-direction: column; }
+
+    /* Header */
+    .header {
+      height: 48px;
+      background: white;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+    }
+    .header-left { display: flex; align-items: center; gap: 12px; }
+    .header-search {
+      padding: 6px 12px 6px 32px;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      font-size: 13px;
+      width: 240px;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'/%3E%3C/svg%3E") 8px center/16px no-repeat;
+    }
+    .header-search:focus { outline: none; border-color: var(--primary); }
+    .header-right { display: flex; align-items: center; gap: 16px; }
+    .header-btn {
+      padding: 4px 8px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-size: 16px;
+      position: relative;
+    }
+    .notification-dot { position: absolute; top: 0; right: 2px; width: 6px; height: 6px; background: #ef4444; border-radius: 50%; }
+    .user-info { display: flex; align-items: center; gap: 8px; }
+    .user-avatar {
+      width: 28px;
+      height: 28px;
+      background: #dcfce7;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary);
+      font-size: 12px;
+    }
+    .user-name { font-size: 13px; font-weight: 500; }
+
+    /* Content Area */
+    .content { flex: 1; padding: 16px; overflow-y: auto; }
+
+    /* Page Title */
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .page-title { font-size: 18px; font-weight: 600; color: #1f2937; }
+    .page-subtitle { font-size: 13px; color: #6b7280; }
+    .page-date { font-size: 13px; color: #6b7280; }
+
+    /* Stats Cards */
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 16px; }
+    .stat-card {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .stat-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .stat-card-title { font-size: 13px; color: #6b7280; }
+    .stat-card-icon { width: 20px; height: 20px; color: #9ca3af; }
+    .stat-card-value { font-size: 24px; font-weight: 600; color: #1f2937; }
+    .stat-card-change { font-size: 12px; margin-top: 4px; }
+    .stat-card-change.positive { color: #059669; }
+    .stat-card-change.negative { color: #dc2626; }
+    .stat-card-change.neutral { color: #6b7280; }
+
+    /* Grid Layout */
+    .main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
+
+    /* Card */
+    .card {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+    }
+    .card-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .card-body { padding: 16px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid #e5e7eb; }
+    .tab {
+      padding: 12px 16px;
+      font-size: 13px;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .tab:hover { background: #f9fafb; }
+    .tab.active { border-bottom-color: var(--primary); color: var(--primary); font-weight: 500; }
+    .tab-badge {
+      background: #e5e7eb;
+      color: #374151;
+      font-size: 11px;
+      padding: 1px 6px;
+      border-radius: 10px;
+    }
+    .tab.active .tab-badge { background: #dcfce7; color: var(--primary); }
+    .tab-content { padding: 16px; }
+
+    /* Table */
+    .table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .table th { text-align: left; padding: 8px 12px; background: #f9fafb; color: #374151; font-weight: 600; }
+    .table td { padding: 8px 12px; border-bottom: 1px solid #f3f4f6; }
+    .table tr:hover { background: #f9fafb; cursor: pointer; }
+
+    /* Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      font-size: 11px;
+      font-weight: 500;
+      border-radius: 4px;
+    }
+    .badge-success { background: #dcfce7; color: #166534; }
+    .badge-warning { background: #fef3c7; color: #92400e; }
+    .badge-info { background: #dbeafe; color: #1e40af; }
+    .badge-danger { background: #fee2e2; color: #991b1b; }
+    .badge-gray { background: #f3f4f6; color: #374151; }
+
+    /* Alert Boxes */
+    .alert { display: flex; align-items: flex-start; gap: 12px; padding: 12px; border-radius: 8px; margin-bottom: 8px; }
+    .alert-amber { background: #fef3c7; }
+    .alert-red { background: #fee2e2; }
+    .alert-blue { background: #dbeafe; }
+    .alert-icon { font-size: 14px; margin-top: 2px; }
+    .alert-title { font-size: 13px; font-weight: 500; }
+    .alert-text { font-size: 12px; margin-top: 2px; }
+
+    /* Patient Card */
+    .patient-card {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    .patient-card-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 8px; }
+    .patient-avatar {
+      width: 40px;
+      height: 40px;
+      background: #e5e7eb;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #6b7280;
+    }
+    .patient-name { font-weight: 500; color: #1f2937; }
+    .patient-meta { font-size: 12px; color: #6b7280; }
+    .patient-info { font-size: 12px; color: #6b7280; margin-top: 8px; }
+    .patient-info div { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+
+    /* Progress Bar */
+    .progress { height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden; }
+    .progress-bar { height: 100%; border-radius: 4px; }
+    .progress-bar.green { background: var(--primary); }
+    .progress-bar.amber { background: #f59e0b; }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 500;
+      border-radius: 6px;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+    }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-secondary { background: white; color: #374151; border: 1px solid #e5e7eb; }
+    .btn-secondary:hover { background: #f9fafb; }
+    .btn-sm { padding: 4px 8px; font-size: 11px; }
+    .btn-blue { background: #3b82f6; color: white; }
+    .btn-blue:hover { background: #2563eb; }
+    .btn-green { background: #22c55e; color: white; }
+    .btn-purple { background: #8b5cf6; color: white; }
+
+    /* Patient Detail */
+    .patient-header { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+    .back-btn { padding: 8px; border-radius: 8px; border: none; background: none; cursor: pointer; font-size: 16px; }
+    .back-btn:hover { background: #f3f4f6; }
+    .patient-detail-info { flex: 1; }
+    .patient-detail-name { font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 12px; }
+    .patient-detail-meta { font-size: 13px; color: #6b7280; }
+    .patient-actions { display: flex; gap: 8px; }
+
+    .allergy-bar {
+      background: #fee2e2;
+      border: 1px solid #fecaca;
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      font-size: 13px;
+    }
+    .allergy-bar strong { color: #991b1b; }
+    .allergy-bar span { color: #dc2626; }
+
+    .patient-layout { display: flex; gap: 16px; }
+    .patient-sidebar { width: 256px; }
+    .patient-main { flex: 1; }
+
+    .info-card { background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+    .info-card-title { font-weight: 600; font-size: 14px; margin-bottom: 12px; }
+    .info-item { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; margin-bottom: 8px; }
+    .info-icon { color: #9ca3af; }
+
+    .condition-item { display: flex; align-items: center; gap: 8px; font-size: 13px; margin-bottom: 4px; }
+    .condition-dot { width: 6px; height: 6px; background: var(--primary); border-radius: 50%; }
+
+    /* Vitals Grid */
+    .vitals-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .vital-item { background: #f9fafb; padding: 8px; border-radius: 6px; }
+    .vital-label { font-size: 11px; color: #6b7280; }
+    .vital-value { font-size: 14px; font-weight: 500; }
+
+    /* Notes Section */
+    .note-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .note-card.uploaded { border-color: #86efac; background: rgba(240,253,244,0.5); }
+    .note-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+    .note-meta { display: flex; align-items: center; gap: 12px; }
+    .note-type { font-weight: 500; }
+    .note-summary { font-size: 13px; color: #4b5563; margin-bottom: 12px; }
+    .note-actions { display: flex; gap: 8px; padding-top: 12px; border-top: 1px solid #f3f4f6; }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    .modal {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
+      overflow: hidden;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .modal-title { font-size: 16px; font-weight: 600; }
+    .modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: #6b7280; }
+    .modal-body { padding: 24px; }
+    .modal-footer { padding: 16px; background: #f9fafb; border-top: 1px solid #e5e7eb; }
+
+    /* Progress Circle */
+    .progress-circle {
+      width: 96px;
+      height: 96px;
+      margin: 0 auto 24px;
+      position: relative;
+    }
+    .progress-circle svg { transform: rotate(-90deg); }
+    .progress-circle-bg { fill: none; stroke: #e5e7eb; stroke-width: 8; }
+    .progress-circle-fg { fill: none; stroke: #6366f1; stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 0.3s; }
+    .progress-circle-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .upload-progress { height: 8px; background: #e5e7eb; border-radius: 4px; margin-bottom: 16px; }
+    .upload-progress-bar { height: 100%; background: #6366f1; border-radius: 4px; transition: width 0.3s; }
+    .upload-step { display: flex; align-items: center; gap: 8px; font-size: 14px; color: #6b7280; justify-content: center; margin-bottom: 16px; }
+    .upload-steps { space-y: 8px; }
+    .upload-step-item { display: flex; align-items: center; gap: 8px; font-size: 13px; margin-bottom: 8px; }
+    .upload-step-item.done { color: #374151; }
+    .upload-step-item.pending { color: #9ca3af; }
+    .step-check { color: #22c55e; }
+    .step-empty { width: 14px; height: 14px; border: 2px solid #e5e7eb; border-radius: 50%; }
+
+    .upload-success { text-align: center; }
+    .success-icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 16px;
+      background: #dcfce7;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      color: #22c55e;
+    }
+    .success-title { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+    .success-text { font-size: 14px; color: #6b7280; margin-bottom: 16px; }
+    .success-details {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 13px;
+    }
+    .success-detail-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
+    .success-detail-row:last-child { margin-bottom: 0; }
+
+    .hidden { display: none !important; }
+    .spinner { animation: spin 1s linear infinite; display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">+</div>
+        <span class="sidebar-title">Greenway Health</span>
+      </div>
+      <nav class="nav">
+        <div class="nav-item active" data-page="dashboard">
+          <span class="nav-icon">&#127968;</span> Dashboard
+        </div>
+        <div class="nav-item" data-page="schedule">
+          <span class="nav-icon">&#128197;</span> Schedule
+        </div>
+        <div class="nav-item" data-page="patients">
+          <span class="nav-icon">&#128101;</span> Patients
+        </div>
+        <div class="nav-submenu">
+          <div class="nav-item" data-page="patients">Patient Registry</div>
+          <div class="nav-item" data-page="patient-detail">Active Charts</div>
+        </div>
+        <div class="nav-item">
+          <span class="nav-icon">&#128196;</span> Charts
+        </div>
+        <div class="nav-item">
+          <span class="nav-icon">&#9764;</span> Clinical
+        </div>
+        <div class="nav-item">
+          <span class="nav-icon">&#128138;</span> Medications
+        </div>
+        <div class="nav-item">
+          <span class="nav-icon">&#128300;</span> Lab
+        </div>
+        <div class="nav-item">
+          <span class="nav-icon">&#128179;</span> Billing
+        </div>
+        <div class="nav-item">
+          <span class="nav-icon">&#128200;</span> Reports
+        </div>
+        <div class="nav-item">
+          <span class="nav-icon">&#128172;</span> Messages
+        </div>
+        <div class="nav-item">
+          <span class="nav-icon">&#9881;</span> Settings
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main -->
+    <div class="main">
+      <!-- Header -->
+      <header class="header">
+        <div class="header-left">
+          <input type="text" class="header-search" placeholder="Search patients, charts...">
+        </div>
+        <div class="header-right">
+          <button class="header-btn">&#128276;<span class="notification-dot"></span></button>
+          <button class="header-btn">&#9881;</button>
+          <div class="user-info">
+            <div class="user-avatar">&#128100;</div>
+            <span class="user-name">Dr. Smith</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Content -->
+      <div class="content" id="content">
+        <!-- Dashboard Page -->
+        <div id="dashboard-page">
+          <div class="page-header">
+            <div>
+              <div class="page-title">Dashboard</div>
+              <div class="page-subtitle">Welcome back, Dr. Smith. Here's your overview for today.</div>
+            </div>
+            <div class="page-date" id="currentDate"></div>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <span class="stat-card-title">Today's Appointments</span>
+                <span class="stat-card-icon">&#128197;</span>
+              </div>
+              <div class="stat-card-value">5</div>
+              <div class="stat-card-change positive">+2 from yesterday</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <span class="stat-card-title">Patients Seen</span>
+                <span class="stat-card-icon">&#128101;</span>
+              </div>
+              <div class="stat-card-value">2</div>
+              <div class="stat-card-change neutral">3 remaining</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <span class="stat-card-title">Pending Tasks</span>
+                <span class="stat-card-icon">&#128196;</span>
+              </div>
+              <div class="stat-card-value">4</div>
+              <div class="stat-card-change negative">2 high priority</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <span class="stat-card-title">Pending Claims</span>
+                <span class="stat-card-icon">&#128176;</span>
+              </div>
+              <div class="stat-card-value">$12,450</div>
+              <div class="stat-card-change positive">+5% this week</div>
+            </div>
+          </div>
+
+          <div class="main-grid">
+            <div>
+              <div class="card">
+                <div class="tabs">
+                  <div class="tab active" data-tab="appointments">Today's Appointments <span class="tab-badge">5</span></div>
+                  <div class="tab" data-tab="tasks">Pending Tasks <span class="tab-badge">2</span></div>
+                  <div class="tab" data-tab="messages">Messages <span class="tab-badge">3</span></div>
+                  <div class="tab" data-tab="signoff">Notes Pending Sign-off <span class="tab-badge">3</span></div>
+                </div>
+                <div class="tab-content" id="tab-appointments">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Time</th>
+                        <th>Patient</th>
+                        <th>MRN</th>
+                        <th>Visit Type</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr onclick="showPatientDetail('MRN-4521')">
+                        <td>9:00 AM</td>
+                        <td>John Smith</td>
+                        <td>MRN-4521</td>
+                        <td>Follow-up</td>
+                        <td><span class="badge badge-info">Checked In</span></td>
+                      </tr>
+                      <tr onclick="showPatientDetail('MRN-3892')">
+                        <td>9:30 AM</td>
+                        <td>Mary Johnson</td>
+                        <td>MRN-3892</td>
+                        <td>New Patient</td>
+                        <td><span class="badge badge-success">In Room</span></td>
+                      </tr>
+                      <tr onclick="showPatientDetail('MRN-2847')">
+                        <td>10:00 AM</td>
+                        <td>Robert Davis</td>
+                        <td>MRN-2847</td>
+                        <td>Annual Physical</td>
+                        <td><span class="badge badge-warning">Scheduled</span></td>
+                      </tr>
+                      <tr>
+                        <td>10:30 AM</td>
+                        <td>Sarah Wilson</td>
+                        <td>MRN-9182</td>
+                        <td>Sick Visit</td>
+                        <td><span class="badge badge-warning">Scheduled</span></td>
+                      </tr>
+                      <tr>
+                        <td>11:00 AM</td>
+                        <td>Michael Brown</td>
+                        <td>MRN-7621</td>
+                        <td>Follow-up</td>
+                        <td><span class="badge badge-warning">Scheduled</span></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="tab-content hidden" id="tab-tasks">
+                  <table class="table">
+                    <thead>
+                      <tr><th>Task</th><th>Patient</th><th>Priority</th><th>Due</th></tr>
+                    </thead>
+                    <tbody>
+                      <tr><td>Review lab results</td><td>John Smith</td><td><span class="badge badge-danger">High</span></td><td>Today</td></tr>
+                      <tr><td>Sign prescription renewal</td><td>Mary Johnson</td><td><span class="badge badge-warning">Medium</span></td><td>Today</td></tr>
+                      <tr><td>Complete referral</td><td>Robert Davis</td><td><span class="badge badge-info">Low</span></td><td>Tomorrow</td></tr>
+                      <tr><td>Review imaging report</td><td>Sarah Wilson</td><td><span class="badge badge-danger">High</span></td><td>Today</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="tab-content hidden" id="tab-messages">
+                  <p style="text-align:center;padding:32px;color:#6b7280;">You have 3 unread messages</p>
+                </div>
+                <div class="tab-content hidden" id="tab-signoff">
+                  <table class="table">
+                    <thead>
+                      <tr><th>Patient</th><th>MRN</th><th>Note Type</th><th>Date</th><th>Actions</th></tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>John Smith</td><td>MRN-4521</td><td>Progress Note</td><td>01/07/2026</td>
+                        <td>
+                          <button class="btn btn-sm btn-secondary">Edit</button>
+                          <button class="btn btn-sm btn-green">Sign</button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>Mary Johnson</td><td>MRN-3892</td><td>New Patient</td><td>12/28/2025</td>
+                        <td>
+                          <button class="btn btn-sm btn-secondary">Edit</button>
+                          <button class="btn btn-sm btn-green">Sign</button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>Robert Davis</td><td>MRN-2847</td><td>Office Visit</td><td>01/06/2026</td>
+                        <td>
+                          <button class="btn btn-sm btn-secondary">Edit</button>
+                          <button class="btn btn-sm btn-green">Sign</button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="card" style="margin-top:16px;">
+                <div class="card-header">&#9888; Clinical Alerts</div>
+                <div class="card-body">
+                  <div class="alert alert-amber">
+                    <span class="alert-icon">&#9888;</span>
+                    <div>
+                      <div class="alert-title" style="color:#92400e;">Drug Interaction Warning</div>
+                      <div class="alert-text" style="color:#b45309;">Patient John Smith (MRN-4521) - Potential interaction between Warfarin and Aspirin</div>
+                    </div>
+                  </div>
+                  <div class="alert alert-red">
+                    <span class="alert-icon">&#128337;</span>
+                    <div>
+                      <div class="alert-title" style="color:#991b1b;">Overdue Lab Results</div>
+                      <div class="alert-text" style="color:#dc2626;">3 patients have lab results pending review for over 48 hours</div>
+                    </div>
+                  </div>
+                  <div class="alert alert-blue">
+                    <span class="alert-icon">&#128200;</span>
+                    <div>
+                      <div class="alert-title" style="color:#1e40af;">Quality Metric Update</div>
+                      <div class="alert-text" style="color:#3b82f6;">Diabetes care gap closed for 5 patients this week</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                <span style="font-weight:600;font-size:14px;">Recent Patients</span>
+                <button class="btn btn-sm btn-secondary">View All</button>
+              </div>
+
+              <div class="patient-card" onclick="showPatientDetail('MRN-4521')" style="cursor:pointer;">
+                <div class="patient-card-header">
+                  <div class="patient-avatar">&#128100;</div>
+                  <div>
+                    <div class="patient-name">John Smith</div>
+                    <div class="patient-meta">MRN-4521 | M, 47y</div>
+                  </div>
+                </div>
+                <div class="patient-info">
+                  <div>&#128222; (555) 123-4567</div>
+                  <div>&#128197; Next: 01/07/2026 9:00 AM</div>
+                  <div><span class="badge badge-danger">Allergy: Penicillin</span></div>
+                </div>
+              </div>
+
+              <div class="patient-card" onclick="showPatientDetail('MRN-3892')" style="cursor:pointer;">
+                <div class="patient-card-header">
+                  <div class="patient-avatar">&#128100;</div>
+                  <div>
+                    <div class="patient-name">Mary Johnson</div>
+                    <div class="patient-meta">MRN-3892 | F, 40y</div>
+                  </div>
+                </div>
+                <div class="patient-info">
+                  <div>&#128222; (555) 234-5678</div>
+                  <div>&#128197; Last: 12/28/2025</div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-header">Today's Progress</div>
+                <div class="card-body">
+                  <div style="margin-bottom:12px;">
+                    <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;">
+                      <span>Appointments</span><span>2/5</span>
+                    </div>
+                    <div class="progress"><div class="progress-bar green" style="width:40%"></div></div>
+                  </div>
+                  <div style="margin-bottom:12px;">
+                    <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;">
+                      <span>Charts Completed</span><span>2/2</span>
+                    </div>
+                    <div class="progress"><div class="progress-bar green" style="width:100%"></div></div>
+                  </div>
+                  <div>
+                    <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;">
+                      <span>Tasks</span><span>1/4</span>
+                    </div>
+                    <div class="progress"><div class="progress-bar amber" style="width:25%"></div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Patient Detail Page -->
+        <div id="patient-detail-page" class="hidden"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upload Modal -->
+  <div class="modal-overlay hidden" id="uploadModal">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title">Upload to EMR</span>
+        <button class="modal-close" onclick="closeUploadModal()">&times;</button>
+      </div>
+      <div class="modal-body" id="uploadModalBody"></div>
+      <div class="modal-footer" id="uploadModalFooter"></div>
+    </div>
+  </div>
+
+  <script>
+    // Patient Data
+    const patients = {
+      "MRN-4521": {
+        id: "MRN-4521",
+        name: "John Smith",
+        dob: "03/15/1978",
+        age: 47,
+        gender: "Male",
+        phone: "(555) 123-4567",
+        email: "john.smith@email.com",
+        address: "123 Main St, Springfield, IL 62701",
+        insurance: "Blue Cross PPO",
+        insuranceId: "BCB123456789",
+        pcp: "Dr. Sarah Smith",
+        allergies: ["Penicillin", "Sulfa drugs"],
+        conditions: ["Type 2 Diabetes", "Hypertension", "Hyperlipidemia"],
+        vitals: { bp: "138/88", hr: 78, temp: "98.6°F", weight: "185 lbs", bmi: 26.5, o2: "98%" },
+        medications: [
+          { name: "Metformin", dose: "500mg", frequency: "Twice daily", status: "Active" },
+          { name: "Lisinopril", dose: "10mg", frequency: "Once daily", status: "Active" },
+          { name: "Atorvastatin", dose: "20mg", frequency: "Once daily at bedtime", status: "Active" },
+          { name: "Aspirin", dose: "81mg", frequency: "Once daily", status: "Active" }
+        ],
+        labs: [
+          { test: "HbA1c", result: "7.2%", range: "4.0-5.6%", status: "High" },
+          { test: "Fasting Glucose", result: "142 mg/dL", range: "70-100 mg/dL", status: "High" },
+          { test: "Total Cholesterol", result: "198 mg/dL", range: "<200 mg/dL", status: "Normal" },
+          { test: "LDL", result: "118 mg/dL", range: "<100 mg/dL", status: "High" }
+        ],
+        notes: [
+          { id: "N001", date: "01/07/2026", type: "Progress Note", summary: "Follow-up for diabetes management. Good compliance.", status: "Pending Sign-off" },
+          { id: "N002", date: "12/15/2025", type: "Office Visit", summary: "Annual physical exam. Ordered routine labs.", status: "Signed" }
+        ]
+      },
+      "MRN-3892": {
+        id: "MRN-3892",
+        name: "Mary Johnson",
+        dob: "07/22/1985",
+        age: 40,
+        gender: "Female",
+        phone: "(555) 234-5678",
+        email: "mary.j@email.com",
+        address: "456 Oak Ave, Springfield, IL 62702",
+        insurance: "Aetna HMO",
+        insuranceId: "AET987654321",
+        pcp: "Dr. Sarah Smith",
+        allergies: [],
+        conditions: ["Anxiety", "Migraine"],
+        vitals: { bp: "118/76", hr: 72, temp: "98.4°F", weight: "145 lbs", bmi: 23.4, o2: "99%" },
+        medications: [
+          { name: "Sertraline", dose: "50mg", frequency: "Once daily", status: "Active" },
+          { name: "Sumatriptan", dose: "50mg", frequency: "As needed", status: "Active" }
+        ],
+        labs: [
+          { test: "CBC", result: "Normal", range: "-", status: "Normal" },
+          { test: "TSH", result: "2.1 mIU/L", range: "0.4-4.0 mIU/L", status: "Normal" }
+        ],
+        notes: [
+          { id: "N004", date: "12/28/2025", type: "New Patient", summary: "New patient visit. Established care.", status: "Pending Sign-off" }
+        ]
+      },
+      "MRN-2847": {
+        id: "MRN-2847",
+        name: "Robert Davis",
+        dob: "11/03/1980",
+        age: 45,
+        gender: "Male",
+        phone: "(555) 345-6789",
+        email: "r.davis@email.com",
+        address: "789 Pine St, Springfield, IL 62703",
+        insurance: "United Healthcare",
+        insuranceId: "UHC456789123",
+        pcp: "Dr. Sarah Smith",
+        allergies: ["Sulfa drugs"],
+        conditions: ["GERD", "Anxiety"],
+        vitals: { bp: "124/78", hr: 82, temp: "99.1°F", weight: "175 lbs", bmi: 25.1, o2: "98%" },
+        medications: [
+          { name: "Omeprazole", dose: "20mg", frequency: "Once daily", status: "Active" },
+          { name: "Escitalopram", dose: "10mg", frequency: "Once daily", status: "Active" }
+        ],
+        labs: [],
+        notes: [
+          { id: "N005", date: "01/06/2026", type: "Office Visit", summary: "URI symptoms. Supportive care.", status: "Pending Sign-off" }
+        ]
+      }
+    };
+
+    let uploadedNotes = [];
+    let currentPatient = null;
+    let activeTab = 'summary';
+
+    // Set current date
+    document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    });
+
+    // Tab switching
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        const tabId = tab.dataset.tab;
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+        tab.classList.add('active');
+        document.getElementById('tab-' + tabId).classList.remove('hidden');
+      });
+    });
+
+    // Navigation
+    document.querySelectorAll('.nav-item[data-page]').forEach(item => {
+      item.addEventListener('click', () => {
+        const page = item.dataset.page;
+        if (page === 'dashboard') {
+          document.getElementById('dashboard-page').classList.remove('hidden');
+          document.getElementById('patient-detail-page').classList.add('hidden');
+        } else if (page === 'patient-detail') {
+          showPatientDetail('MRN-4521');
+        }
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        item.classList.add('active');
+      });
+    });
+
+    function showPatientDetail(mrn) {
+      currentPatient = patients[mrn];
+      if (!currentPatient) return;
+
+      document.getElementById('dashboard-page').classList.add('hidden');
+      const page = document.getElementById('patient-detail-page');
+      page.classList.remove('hidden');
+      activeTab = 'summary';
+      renderPatientDetail();
+    }
+
+    function renderPatientDetail() {
+      const p = currentPatient;
+      const page = document.getElementById('patient-detail-page');
+
+      page.innerHTML = `
+        <div class="patient-header">
+          <button class="back-btn" onclick="goBack()">&#8592;</button>
+          <div class="patient-detail-info">
+            <div class="patient-detail-name">
+              ${p.name}
+              ${p.allergies.length ? '<span class="badge badge-danger">&#9888; Allergies</span>' : ''}
+            </div>
+            <div class="patient-detail-meta">${p.id} | DOB: ${p.dob} (${p.age}y, ${p.gender}) | PCP: ${p.pcp}</div>
+          </div>
+          <div class="patient-actions">
+            <button class="btn btn-blue" onclick="openInWord('${p.notes[0]?.id || 'N001'}')">&#128196; Open in Word</button>
+            <button class="btn btn-primary">+ New Note</button>
+            <button class="btn btn-secondary">&#9998; Edit</button>
+            <button class="btn btn-secondary">&#128424; Print</button>
+          </div>
+        </div>
+
+        ${p.allergies.length ? `
+          <div class="allergy-bar">
+            <span>&#9888;</span>
+            <div><strong>Allergies:</strong> <span>${p.allergies.join(", ")}</span></div>
+          </div>
+        ` : ''}
+
+        <div class="patient-layout">
+          <div class="patient-sidebar">
+            <div class="info-card">
+              <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+                <div class="patient-avatar" style="width:64px;height:64px;font-size:32px;">&#128100;</div>
+                <div>
+                  <div style="font-weight:600;">${p.name}</div>
+                  <div style="font-size:12px;color:#6b7280;">${p.gender}, ${p.age} years</div>
+                </div>
+              </div>
+              <div class="info-item"><span class="info-icon">&#128222;</span> ${p.phone}</div>
+              <div class="info-item"><span class="info-icon">&#9993;</span> ${p.email}</div>
+              <div class="info-item"><span class="info-icon">&#128205;</span> ${p.address}</div>
+            </div>
+
+            <div class="info-card">
+              <div class="info-card-title">Insurance</div>
+              <div style="font-size:13px;">${p.insurance}</div>
+              <div style="font-size:12px;color:#6b7280;">ID: ${p.insuranceId}</div>
+            </div>
+
+            <div class="info-card">
+              <div class="info-card-title">Conditions</div>
+              ${p.conditions.map(c => `<div class="condition-item"><span class="condition-dot"></span>${c}</div>`).join('')}
+            </div>
+          </div>
+
+          <div class="patient-main">
+            <div class="card">
+              <div class="tabs">
+                <div class="tab ${activeTab === 'summary' ? 'active' : ''}" onclick="switchTab('summary')">&#128100; Summary</div>
+                <div class="tab ${activeTab === 'vitals' ? 'active' : ''}" onclick="switchTab('vitals')">&#128147; Vitals</div>
+                <div class="tab ${activeTab === 'medications' ? 'active' : ''}" onclick="switchTab('medications')">&#128138; Medications</div>
+                <div class="tab ${activeTab === 'labs' ? 'active' : ''}" onclick="switchTab('labs')">&#128300; Lab Results</div>
+                <div class="tab ${activeTab === 'notes' ? 'active' : ''}" onclick="switchTab('notes')">&#128196; Notes</div>
+              </div>
+              <div class="tab-content" id="patient-tab-content"></div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      renderPatientTab();
+    }
+
+    function switchTab(tab) {
+      activeTab = tab;
+      document.querySelectorAll('.patient-main .tab').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      renderPatientTab();
+    }
+
+    function renderPatientTab() {
+      const p = currentPatient;
+      const content = document.getElementById('patient-tab-content');
+
+      if (activeTab === 'summary') {
+        content.innerHTML = `
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div>
+              <h4 style="font-size:14px;font-weight:600;margin-bottom:8px;">Latest Vitals</h4>
+              <div class="vitals-grid">
+                <div class="vital-item"><div class="vital-label">Blood Pressure</div><div class="vital-value">${p.vitals.bp}</div></div>
+                <div class="vital-item"><div class="vital-label">Heart Rate</div><div class="vital-value">${p.vitals.hr} bpm</div></div>
+                <div class="vital-item"><div class="vital-label">Temperature</div><div class="vital-value">${p.vitals.temp}</div></div>
+                <div class="vital-item"><div class="vital-label">O2 Sat</div><div class="vital-value">${p.vitals.o2}</div></div>
+              </div>
+              <h4 style="font-size:14px;font-weight:600;margin:16px 0 8px;">Active Medications</h4>
+              ${p.medications.slice(0,4).map(m => `
+                <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;">
+                  <span>${m.name} ${m.dose}</span><span style="color:#6b7280;">${m.frequency}</span>
+                </div>
+              `).join('')}
+            </div>
+            <div>
+              <h4 style="font-size:14px;font-weight:600;margin-bottom:8px;">Recent Labs</h4>
+              ${p.labs.slice(0,4).map(l => `
+                <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-bottom:4px;">
+                  <span>${l.test}</span>
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <span>${l.result}</span>
+                    <span class="badge ${l.status === 'Normal' ? 'badge-success' : 'badge-danger'}">${l.status}</span>
+                  </div>
+                </div>
+              `).join('')}
+              <h4 style="font-size:14px;font-weight:600;margin:16px 0 8px;">Latest Note</h4>
+              ${p.notes[0] ? `
+                <div style="background:#f9fafb;padding:12px;border-radius:6px;font-size:13px;">
+                  <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                    <span style="font-weight:500;">${p.notes[0].type}</span>
+                    <span style="color:#6b7280;">${p.notes[0].date}</span>
+                  </div>
+                  <p style="color:#4b5563;">${p.notes[0].summary}</p>
+                </div>
+              ` : '<p style="color:#6b7280;">No notes available</p>'}
+            </div>
+          </div>
+        `;
+      } else if (activeTab === 'vitals') {
+        content.innerHTML = `
+          <div style="display:flex;justify-content:space-between;margin-bottom:16px;">
+            <h4 style="font-size:14px;font-weight:600;">Vital Signs History</h4>
+            <button class="btn btn-primary">+ Record Vitals</button>
+          </div>
+          <table class="table">
+            <thead><tr><th>Date</th><th>BP</th><th>HR</th><th>Temp</th><th>Weight</th><th>BMI</th><th>O2</th></tr></thead>
+            <tbody>
+              <tr><td>01/07/2026</td><td>${p.vitals.bp}</td><td>${p.vitals.hr} bpm</td><td>${p.vitals.temp}</td><td>${p.vitals.weight}</td><td>${p.vitals.bmi}</td><td>${p.vitals.o2}</td></tr>
+            </tbody>
+          </table>
+        `;
+      } else if (activeTab === 'medications') {
+        content.innerHTML = `
+          <div style="display:flex;justify-content:space-between;margin-bottom:16px;">
+            <h4 style="font-size:14px;font-weight:600;">Medication List</h4>
+            <button class="btn btn-primary">+ e-Prescribe</button>
+          </div>
+          <table class="table">
+            <thead><tr><th>Medication</th><th>Dose</th><th>Frequency</th><th>Status</th></tr></thead>
+            <tbody>
+              ${p.medications.map(m => `
+                <tr><td style="font-weight:500;">${m.name}</td><td>${m.dose}</td><td>${m.frequency}</td><td><span class="badge badge-success">${m.status}</span></td></tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+      } else if (activeTab === 'labs') {
+        content.innerHTML = `
+          <div style="display:flex;justify-content:space-between;margin-bottom:16px;">
+            <h4 style="font-size:14px;font-weight:600;">Laboratory Results</h4>
+            <button class="btn btn-primary">+ Order Labs</button>
+          </div>
+          ${p.labs.length ? `
+            <table class="table">
+              <thead><tr><th>Test</th><th>Result</th><th>Reference Range</th><th>Status</th></tr></thead>
+              <tbody>
+                ${p.labs.map(l => `
+                  <tr><td style="font-weight:500;">${l.test}</td><td>${l.result}</td><td style="color:#6b7280;">${l.range}</td><td><span class="badge ${l.status === 'Normal' ? 'badge-success' : 'badge-danger'}">${l.status}</span></td></tr>
+                `).join('')}
+              </tbody>
+            </table>
+          ` : '<p style="text-align:center;padding:32px;color:#6b7280;">No lab results available</p>'}
+        `;
+      } else if (activeTab === 'notes') {
+        content.innerHTML = `
+          <h4 style="font-size:14px;font-weight:600;margin-bottom:16px;">Clinical Notes</h4>
+          ${p.notes.map(n => `
+            <div class="note-card ${uploadedNotes.includes(n.id) ? 'uploaded' : ''}">
+              <div class="note-header">
+                <div class="note-meta">
+                  <span class="note-type">${n.type}</span>
+                  <span style="color:#d1d5db;">|</span>
+                  <span style="color:#4b5563;">Dr. Smith</span>
+                  <span class="badge ${n.status === 'Signed' ? 'badge-success' : 'badge-warning'}">
+                    ${n.status === 'Signed' ? '&#10003;' : '&#128337;'} ${n.status}
+                  </span>
+                  ${uploadedNotes.includes(n.id) ? '<span class="badge badge-success">&#10003; Uploaded to EMR</span>' : ''}
+                </div>
+                <span style="font-size:13px;color:#6b7280;">${n.date}</span>
+              </div>
+              <p class="note-summary">${n.summary}</p>
+              <div class="note-actions">
+                <button class="btn btn-sm btn-blue" onclick="openInWord('${n.id}')">&#128196; Edit in Word</button>
+                ${n.status === 'Pending Sign-off' ? '<button class="btn btn-sm btn-green">&#9998; Sign Note</button>' : ''}
+                ${uploadedNotes.includes(n.id) ?
+                  '<span class="btn btn-sm btn-green" style="cursor:default;">&#10003; Uploaded</span>' :
+                  `<button class="btn btn-sm btn-purple" onclick="uploadToEMR('${n.id}')">&#128228; Upload to EMR</button>`
+                }
+                <button class="btn btn-sm btn-secondary">&#128424; Print</button>
+              </div>
+            </div>
+          `).join('')}
+        `;
+      }
+    }
+
+    function goBack() {
+      document.getElementById('patient-detail-page').classList.add('hidden');
+      document.getElementById('dashboard-page').classList.remove('hidden');
+    }
+
+    function openInWord(noteId) {
+      alert('Opening document in Microsoft Word...\n\nNote ID: ' + noteId);
+    }
+
+    let uploadProgress = 0;
+    let uploadComplete = false;
+
+    function uploadToEMR(noteId) {
+      uploadProgress = 0;
+      uploadComplete = false;
+      document.getElementById('uploadModal').classList.remove('hidden');
+      renderUploadModal(noteId);
+      simulateUpload(noteId);
+    }
+
+    function simulateUpload(noteId) {
+      const steps = [10, 25, 40, 55, 70, 85, 100];
+      let i = 0;
+
+      const interval = setInterval(() => {
+        if (i < steps.length) {
+          uploadProgress = steps[i];
+          renderUploadModal(noteId);
+          i++;
+        } else {
+          clearInterval(interval);
+          setTimeout(() => {
+            uploadComplete = true;
+            uploadedNotes.push(noteId);
+            renderUploadModal(noteId);
+            renderPatientTab();
+          }, 500);
+        }
+      }, 400 + Math.random() * 300);
+    }
+
+    function renderUploadModal(noteId) {
+      const body = document.getElementById('uploadModalBody');
+      const footer = document.getElementById('uploadModalFooter');
+
+      const stepLabels = [
+        "Connecting to EMR system",
+        "Validating document format",
+        "Checking patient record",
+        "Uploading clinical note",
+        "Attaching to patient chart",
+        "Verifying upload"
+      ];
+
+      if (!uploadComplete) {
+        const circumference = 2 * Math.PI * 40;
+        const offset = circumference - (circumference * uploadProgress / 100);
+
+        body.innerHTML = `
+          <div class="progress-circle">
+            <svg width="96" height="96">
+              <circle class="progress-circle-bg" cx="48" cy="48" r="40"></circle>
+              <circle class="progress-circle-fg" cx="48" cy="48" r="40"
+                stroke-dasharray="${circumference}" stroke-dashoffset="${offset}"></circle>
+            </svg>
+            <div class="progress-circle-text">${uploadProgress}%</div>
+          </div>
+          <div class="upload-progress"><div class="upload-progress-bar" style="width:${uploadProgress}%"></div></div>
+          <div class="upload-step"><span class="spinner">&#8635;</span> ${getStepLabel(uploadProgress)}</div>
+          <div class="upload-steps">
+            ${stepLabels.map((label, i) => {
+              const threshold = [10, 25, 40, 55, 70, 85][i];
+              const done = uploadProgress >= threshold;
+              return `<div class="upload-step-item ${done ? 'done' : 'pending'}">
+                ${done ? '<span class="step-check">&#10003;</span>' : '<span class="step-empty"></span>'}
+                ${label}
+              </div>`;
+            }).join('')}
+          </div>
+        `;
+        footer.innerHTML = '<p style="text-align:center;font-size:13px;color:#6b7280;">Please wait while the document is being uploaded...</p>';
+      } else {
+        body.innerHTML = `
+          <div class="upload-success">
+            <div class="success-icon">&#10003;</div>
+            <div class="success-title">Upload Complete!</div>
+            <p class="success-text">The clinical note has been successfully uploaded to the patient's EMR record.</p>
+            <div class="success-details">
+              <div class="success-detail-row"><span>Document ID:</span><span style="font-family:monospace;font-weight:500;">DOC-${Date.now().toString().slice(-8)}</span></div>
+              <div class="success-detail-row"><span>Patient:</span><span style="font-weight:500;">${currentPatient.name}</span></div>
+              <div class="success-detail-row"><span>Status:</span><span style="font-weight:500;">Pending Sign-off</span></div>
+            </div>
+          </div>
+        `;
+        footer.innerHTML = `
+          <div style="display:flex;gap:12px;">
+            <button class="btn btn-primary" style="flex:1;" onclick="closeUploadModal()">Done</button>
+            <button class="btn btn-secondary" onclick="closeUploadModal()">View in Chart</button>
+          </div>
+        `;
+      }
+    }
+
+    function getStepLabel(progress) {
+      if (progress < 10) return "Initializing...";
+      if (progress < 25) return "Connecting to EMR system...";
+      if (progress < 40) return "Validating document format...";
+      if (progress < 55) return "Checking patient record...";
+      if (progress < 70) return "Uploading clinical note...";
+      if (progress < 85) return "Attaching to patient chart...";
+      return "Verifying upload...";
+    }
+
+    function closeUploadModal() {
+      document.getElementById('uploadModal').classList.add('hidden');
+    }
+  </script>
+</body>
+</html>

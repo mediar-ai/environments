@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LossControl360 - Surveys</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; font-size: 13px; }
+
+    /* Layout */
+    .app { display: flex; flex-direction: column; min-height: 100vh; }
+
+    /* Header */
+    .header {
+      background: #1e3a5f;
+      color: white;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+    }
+    .header-left { display: flex; align-items: center; gap: 32px; }
+    .brand { display: flex; align-items: center; gap: 8px; }
+    .brand-sub { font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
+    .brand-main { font-size: 18px; font-weight: 600; }
+
+    .nav { display: flex; gap: 4px; }
+    .nav-item {
+      padding: 8px 12px;
+      font-size: 13px;
+      cursor: pointer;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: background 0.15s;
+    }
+    .nav-item:hover { background: #2d4a6f; }
+    .nav-item.active { background: #2d4a6f; }
+
+    .header-right { display: flex; align-items: center; gap: 12px; }
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(to bottom, #fcd34d, #f59e0b);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+    .user-name { font-size: 13px; font-weight: 500; }
+
+    /* Secondary Toolbar */
+    .toolbar-secondary {
+      background: #e8e8e8;
+      border-bottom: 1px solid #d0d0d0;
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .toolbar-btn {
+      padding: 6px 12px;
+      font-size: 12px;
+      border: 1px solid #c0c0c0;
+      background: white;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+    .toolbar-btn:hover { background: #f0f0f0; }
+    .toolbar-btn.orange { background: #e67e22; color: white; border-color: #e67e22; }
+    .toolbar-btn.orange:hover { background: #d35400; }
+    .toolbar-btn.blue { background: #3498db; color: white; border-color: #3498db; }
+    .toolbar-btn.blue:hover { background: #2980b9; }
+    .toolbar-sep { width: 1px; height: 24px; background: #c0c0c0; margin: 0 8px; }
+
+    /* Tertiary Toolbar */
+    .toolbar-tertiary {
+      background: #f0f0f0;
+      border-bottom: 1px solid #d0d0d0;
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .toolbar-left { display: flex; align-items: center; gap: 8px; }
+    .toolbar-right { display: flex; align-items: center; gap: 8px; }
+    .toolbar-btn.dark { background: #2c3e50; color: white; border-color: #2c3e50; }
+    .toolbar-btn.green { background: #27ae60; color: white; border-color: #27ae60; }
+    .toolbar-btn.green:hover { background: #229954; }
+
+    .icon-group {
+      display: flex;
+      background: white;
+      border: 1px solid #c0c0c0;
+      border-radius: 4px;
+    }
+    .icon-btn {
+      padding: 6px 8px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      border-right: 1px solid #c0c0c0;
+      font-size: 14px;
+    }
+    .icon-btn:last-child { border-right: none; }
+    .icon-btn:hover { background: #f0f0f0; }
+
+    .search-input {
+      padding: 6px 12px 6px 32px;
+      border: 1px solid #c0c0c0;
+      border-radius: 4px;
+      font-size: 13px;
+      width: 180px;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'/%3E%3C/svg%3E") 8px center/14px no-repeat white;
+    }
+    .search-input:focus { outline: none; border-color: #3498db; }
+
+    /* Data Grid */
+    .grid-container { flex: 1; overflow: auto; }
+    .data-grid {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1400px;
+    }
+    .data-grid th {
+      background: #34495e;
+      color: white;
+      padding: 8px 12px;
+      text-align: left;
+      font-weight: 500;
+      font-size: 12px;
+      border-right: 1px solid #2c3e50;
+      position: sticky;
+      top: 0;
+    }
+    .data-grid td {
+      padding: 8px 12px;
+      border-bottom: 1px solid #e5e7eb;
+      border-right: 1px solid #e5e7eb;
+    }
+    .data-grid tr { background: white; }
+    .data-grid tr:nth-child(even) { background: #f9f9f9; }
+    .data-grid tr:hover { background: #e0f2fe; }
+    .data-grid tr.selected { background: #dbeafe; }
+    .data-grid .truncate { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .checkbox { width: 16px; height: 16px; cursor: pointer; }
+    .link { color: #3b82f6; cursor: pointer; }
+    .link:hover { text-decoration: underline; }
+
+    /* Status Badges */
+    .status {
+      display: inline-block;
+      padding: 2px 8px;
+      font-size: 11px;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+    .status-yellow { background: #fef3c7; color: #92400e; }
+    .status-orange { background: #fed7aa; color: #c2410c; }
+    .status-blue { background: #dbeafe; color: #1e40af; }
+    .status-green { background: #dcfce7; color: #166534; }
+    .status-gray { background: #f3f4f6; color: #374151; }
+    .status-purple { background: #f3e8ff; color: #7c3aed; }
+
+    /* Footer */
+    .footer {
+      background: #e8e8e8;
+      border-top: 1px solid #d0d0d0;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer-left { font-size: 13px; color: #4b5563; }
+    .footer-left strong { font-weight: 600; }
+    .footer-hint { margin-left: 16px; color: #6b7280; }
+    .footer-right { display: flex; gap: 8px; }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    .modal {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .modal-sm { width: 500px; }
+    .modal-lg { width: 95%; max-width: 1200px; height: 90vh; }
+    .modal-header {
+      background: #1e3a5f;
+      color: white;
+      padding: 16px;
+      border-radius: 8px 8px 0 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-title { font-size: 18px; font-weight: 600; }
+    .modal-subtitle { font-size: 13px; color: #94a3b8; }
+    .modal-close {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+    .modal-close:hover { background: rgba(255,255,255,0.1); }
+    .modal-body { padding: 24px; overflow-y: auto; flex: 1; }
+    .modal-footer {
+      padding: 16px;
+      border-top: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    /* Form Elements */
+    .form-section {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+    .form-section-header {
+      background: #34495e;
+      color: white;
+      padding: 12px 16px;
+      font-weight: 500;
+      border-radius: 8px 8px 0 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .form-section-badge {
+      font-size: 11px;
+      background: #27ae60;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+    .form-section-body { padding: 16px; }
+
+    .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .form-grid-full { grid-column: span 2; }
+    .form-group { margin-bottom: 12px; }
+    .form-label { display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 4px; }
+    .form-hint { font-size: 11px; color: #6b7280; margin-top: 4px; }
+    .form-input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+    .form-input:focus { outline: none; border-color: #3b82f6; }
+    .form-textarea { min-height: 100px; resize: vertical; }
+    .form-select {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      font-size: 13px;
+      background: white;
+    }
+
+    /* Checkbox Section */
+    .checkbox-section {
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      margin-bottom: 12px;
+    }
+    .checkbox-section-header {
+      padding: 12px 16px;
+      background: #f9fafb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+    .checkbox-section-header:hover { background: #f3f4f6; }
+    .checkbox-section-title { font-weight: 500; color: #374151; }
+    .checkbox-section-count { font-size: 12px; color: #6b7280; }
+    .checkbox-section-arrow { transition: transform 0.2s; }
+    .checkbox-section-arrow.expanded { transform: rotate(90deg); }
+    .checkbox-section-body {
+      padding: 16px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .checkbox-section-body.hidden { display: none; }
+
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .checkbox-item:hover { background: #f9fafb; }
+    .checkbox-box {
+      width: 20px;
+      height: 20px;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+    .checkbox-box.checked { background: #27ae60; border-color: #27ae60; color: white; }
+    .checkbox-label { font-size: 13px; color: #374151; }
+
+    /* Upload Area */
+    .upload-area {
+      border: 2px dashed #d1d5db;
+      border-radius: 8px;
+      padding: 32px;
+      text-align: center;
+    }
+    .upload-icon { font-size: 48px; color: #9ca3af; margin-bottom: 16px; }
+    .upload-text { color: #4b5563; margin-bottom: 8px; }
+    .upload-hint { font-size: 12px; color: #6b7280; margin-bottom: 16px; }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      border-radius: 4px;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+    }
+    .btn-primary { background: #27ae60; color: white; }
+    .btn-primary:hover { background: #229954; }
+    .btn-secondary { background: white; color: #374151; border: 1px solid #d1d5db; }
+    .btn-secondary:hover { background: #f9fafb; }
+    .btn-blue { background: #3498db; color: white; }
+    .btn-blue:hover { background: #2980b9; }
+    .btn-disabled { background: #d1d5db; color: #6b7280; cursor: not-allowed; }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #27ae60;
+      color: white;
+      padding: 16px 24px;
+      border-radius: 8px;
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 500;
+      z-index: 200;
+      animation: slideIn 0.3s ease;
+    }
+    @keyframes slideIn {
+      from { transform: translateY(100px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <div class="brand">
+          <span class="brand-sub">UTILANT</span>
+          <span class="brand-main">LossControl360 - EDITED</span>
+        </div>
+        <nav class="nav">
+          <div class="nav-item active">SURVEYS</div>
+          <div class="nav-item">ORDER &#9662;</div>
+          <div class="nav-item">CLM &#9662;</div>
+          <div class="nav-item">ADMIN &#9662;</div>
+          <div class="nav-item">MARKETING</div>
+          <div class="nav-item">TRAINING</div>
+          <div class="nav-item">TIME</div>
+          <div class="nav-item">HR REPORTS</div>
+        </nav>
+      </div>
+      <div class="header-right">
+        <div class="user-avatar">&#128100;</div>
+        <span class="user-name">JANE SMITH</span>
+        <span>&#9662;</span>
+      </div>
+    </header>
+
+    <!-- Secondary Toolbar -->
+    <div class="toolbar-secondary">
+      <button class="toolbar-btn">&#128337; DEFAULT VIEW &#9662;</button>
+      <button class="toolbar-btn orange">PAST OVERDUE &#9662;</button>
+      <button class="toolbar-btn">MY OPEN/RISK OVERVIEW &#9662;</button>
+      <button class="toolbar-btn">1005 UW SURVEYS &#9662;</button>
+      <div class="toolbar-sep"></div>
+      <button class="toolbar-btn blue">WAITING FOR DOCS</button>
+    </div>
+
+    <!-- Tertiary Toolbar -->
+    <div class="toolbar-tertiary">
+      <div class="toolbar-left">
+        <button class="toolbar-btn dark">CLEARANCE SEARCH</button>
+        <div class="icon-group">
+          <button class="icon-btn">&#9783;</button>
+          <button class="icon-btn">&#9776;</button>
+          <button class="icon-btn">&#128197;</button>
+          <button class="icon-btn">&#9881;</button>
+          <button class="icon-btn">&#128424;</button>
+          <button class="icon-btn">&#9993;</button>
+          <button class="icon-btn">&#8943;</button>
+        </div>
+      </div>
+      <div class="toolbar-right">
+        <input type="text" class="search-input" placeholder="Search..." id="searchInput">
+        <button class="toolbar-btn green" onclick="openNewSurveyModal()">+ NEW SURVEY</button>
+      </div>
+    </div>
+
+    <!-- Data Grid -->
+    <div class="grid-container">
+      <table class="data-grid">
+        <thead>
+          <tr>
+            <th style="width:40px;"><input type="checkbox" class="checkbox" id="selectAll"></th>
+            <th>Survey ID</th>
+            <th>Policy</th>
+            <th>Division</th>
+            <th>Company Name</th>
+            <th>Client Location</th>
+            <th>Survey Type</th>
+            <th>Status</th>
+            <th>Risk Consultant</th>
+            <th>Location</th>
+            <th>City</th>
+          </tr>
+        </thead>
+        <tbody id="gridBody"></tbody>
+      </table>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-left">
+        Found <strong id="resultCount">10</strong> results in <strong>.248</strong> seconds
+        <span class="footer-hint">Double-click a row to open the survey form</span>
+      </div>
+      <div class="footer-right">
+        <button class="toolbar-btn">&#128229; DOWNLOAD CSV</button>
+        <button class="toolbar-btn blue">&#128196; EXPORT</button>
+      </div>
+    </footer>
+  </div>
+
+  <!-- New Survey Modal -->
+  <div class="modal-overlay hidden" id="newSurveyModal">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title">Create New Survey</div>
+        </div>
+        <button class="modal-close" onclick="closeNewSurveyModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Select Survey Type</label>
+          <select class="form-select" id="surveyTypeSelect">
+            <option value="">-- Select Type --</option>
+            <option value="1005 UW Survey">1005 UW Survey (Underwriter)</option>
+            <option value="1010 Commercial">1010 Commercial Property</option>
+            <option value="1015 Industrial">1015 Industrial Facility</option>
+            <option value="1020 Retail">1020 Retail Location</option>
+            <option value="1025 Restaurant">1025 Restaurant/Food Service</option>
+            <option value="1030 Office">1030 Office Building</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeNewSurveyModal()">Cancel</button>
+        <button class="btn btn-primary" id="createSurveyBtn" onclick="createNewSurvey()">Create Survey</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Survey Form Modal -->
+  <div class="modal-overlay hidden" id="surveyFormModal">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title" id="formTitle">1005 UW Survey - Underwriter Form</div>
+          <div class="modal-subtitle" id="formSubtitle">Survey ID: 163006 | Prasek Inc.</div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:center;">
+          <button class="btn btn-primary" onclick="saveForm()">&#128190; Save Form</button>
+          <button class="modal-close" onclick="closeSurveyForm()">&times;</button>
+        </div>
+      </div>
+      <div class="modal-body" id="formBody"></div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast hidden" id="toast">
+    <span>&#10003;</span>
+    <span id="toastMessage">Survey saved successfully!</span>
+  </div>
+
+  <script>
+    // Survey Data
+    const surveys = [
+      { id: "163006", policy: "2390236023", division: "Large Property Risk Engin...", companyName: "Prasek Inc.", clientLocation: "Prasek Inc.", surveyType: "Service Visit", status: "Needs Assessment", riskConsultant: "", location: "CA", city: "Hamilton", address: "171 Brockley Dr, Hamilton, CA 95012", yearBuilt: "1998", sqft: "12,500", stories: "2", construction: "Masonry Non-Combustible" },
+      { id: "162923", policy: "ASPP2346", division: "Large Property Risk Engin...", companyName: "BASF Corporation", clientLocation: "BASF Corporate Offic...", surveyType: "New Business", status: "Needs Assessment", riskConsultant: "", location: "AU", city: "Southampton", address: "218 09 Farmingdale Place, Southampton, AU 94501", yearBuilt: "2005", sqft: "45,000", stories: "3", construction: "Fire Resistive" },
+      { id: "163025", policy: "ASPP2346", division: "Large Property Risk Engin...", companyName: "BASF Corporation", clientLocation: "BASF Corporation C...", surveyType: "1005 UW Survey", status: "Needs Assessment", riskConsultant: "", location: "CA", city: "San Luis Obispo", address: "707 Garth Avenue, San Luis Obispo, CA 93401", yearBuilt: "1987", sqft: "8,200", stories: "1", construction: "Wood Frame" },
+      { id: "162633", policy: "CL454933...", division: "Commercial Lines", companyName: "Six Flags Entertainment C...", clientLocation: "Six Flags America MD...", surveyType: "1005 UW Survey", status: "Recommendation Review", riskConsultant: "Northwestern Insp...", location: "US", city: "Mitchellville", address: "13710 Central Avenue, Mitchellville, MD 20721", yearBuilt: "1974", sqft: "125,000", stories: "2", construction: "Masonry Non-Combustible" },
+      { id: "162623", policy: "CL44453...", division: "Commercial Lines", companyName: "Valley Auto Parts", clientLocation: "Main Warehouse", surveyType: "1005 UW Survey", status: "In Progress", riskConsultant: "Jane Smith", location: "CA", city: "San Luis Obispo", address: "4521 Industrial Blvd, San Luis Obispo, CA 93401", yearBuilt: "1992", sqft: "15,800", stories: "1", construction: "Metal Building" },
+      { id: "162621", policy: "CL454932...", division: "Commercial Lines", companyName: "Pacific Coast Brewing", clientLocation: "Production Facility", surveyType: "1005 UW Survey", status: "Assigned", riskConsultant: "Larry Chen", location: "CA", city: "Paso Robles", address: "892 Brewery Lane, Paso Robles, CA 93446", yearBuilt: "2001", sqft: "22,400", stories: "1", construction: "Masonry Non-Combustible" },
+      { id: "162619", policy: "CL45454...", division: "Commercial Lines", companyName: "Central Coast Medical", clientLocation: "Urgent Care Center", surveyType: "1005 UW Survey", status: "Assigned", riskConsultant: "Jane Smith", location: "CA", city: "Arroyo Grande", address: "1205 Health Center Dr, Arroyo Grande, CA 93420", yearBuilt: "2015", sqft: "6,500", stories: "1", construction: "Fire Resistive" },
+      { id: "162019", policy: "CL454533...", division: "Commercial Lines", companyName: "Sunrise Senior Living", clientLocation: "Main Campus", surveyType: "1005 UW Survey", status: "Needs Assessment", riskConsultant: "", location: "CA", city: "Morro Bay", address: "3400 Sunset Ridge, Morro Bay, CA 93442", yearBuilt: "1988", sqft: "48,000", stories: "2", construction: "Wood Frame" },
+      { id: "147024", policy: "2390239023", division: "Large Property Risk Engin...", companyName: "Tech Solutions Inc", clientLocation: "HQ Office", surveyType: "1005 UW Survey", status: "Completed", riskConsultant: "Jane Smith", location: "CA", city: "San Luis Obispo", address: "555 Innovation Way, San Luis Obispo, CA 93405", yearBuilt: "2018", sqft: "18,200", stories: "2", construction: "Fire Resistive" },
+      { id: "160071", policy: "5277869AP", division: "Commercial Lines", companyName: "Coastal Fitness Center", clientLocation: "Main Gym", surveyType: "1005 UW Survey", status: "Needs Assignment", riskConsultant: "", location: "CA", city: "Pismo Beach", address: "3680 Julie Ct, Pismo Beach, CA 93449", yearBuilt: "2008", sqft: "12,000", stories: "1", construction: "Masonry Non-Combustible" }
+    ];
+
+    const checkboxSections = [
+      {
+        title: "Fire Protection",
+        items: [
+          { id: "fire_extinguishers", label: "Fire extinguishers present and serviced", default: true },
+          { id: "sprinkler_system", label: "Automatic sprinkler system installed", default: true },
+          { id: "fire_alarm", label: "Fire alarm system operational", default: true },
+          { id: "smoke_detectors", label: "Smoke detectors installed throughout", default: true },
+          { id: "fire_exits", label: "Fire exits properly marked and accessible", default: true },
+          { id: "fire_dept_connection", label: "Fire department connection present", default: true },
+          { id: "standpipe_system", label: "Standpipe system installed", default: false },
+          { id: "fire_pump", label: "Fire pump present", default: false },
+          { id: "kitchen_suppression", label: "Kitchen hood suppression system (if applicable)", default: true }
+        ]
+      },
+      {
+        title: "Electrical Systems",
+        items: [
+          { id: "circuit_breakers", label: "Circuit breakers present (not fuses)", default: true },
+          { id: "electrical_panel", label: "Electrical panel accessible and labeled", default: true },
+          { id: "gfci_outlets", label: "GFCI outlets in wet areas", default: true },
+          { id: "no_knob_tube", label: "No knob and tube wiring observed", default: true },
+          { id: "no_aluminum_wiring", label: "No aluminum branch wiring", default: true },
+          { id: "surge_protection", label: "Surge protection installed", default: true },
+          { id: "emergency_lighting", label: "Emergency lighting present", default: true },
+          { id: "exit_signs", label: "Illuminated exit signs functional", default: true }
+        ]
+      },
+      {
+        title: "Building Structure",
+        items: [
+          { id: "roof_condition", label: "Roof in good condition", default: true },
+          { id: "foundation_sound", label: "Foundation appears sound", default: true },
+          { id: "no_structural_damage", label: "No visible structural damage", default: true },
+          { id: "exterior_maintained", label: "Exterior walls properly maintained", default: true },
+          { id: "windows_intact", label: "Windows intact and secure", default: true },
+          { id: "doors_functional", label: "Doors functional with proper hardware", default: true },
+          { id: "parking_lot_condition", label: "Parking lot in acceptable condition", default: true },
+          { id: "ada_compliant", label: "ADA accessibility features present", default: true }
+        ]
+      },
+      {
+        title: "HVAC & Plumbing",
+        items: [
+          { id: "hvac_maintained", label: "HVAC system properly maintained", default: true },
+          { id: "water_heater", label: "Water heater properly installed", default: true },
+          { id: "no_leaks", label: "No visible plumbing leaks", default: true },
+          { id: "backflow_preventer", label: "Backflow preventer installed", default: true },
+          { id: "water_shutoff", label: "Main water shut-off accessible", default: true },
+          { id: "gas_shutoff", label: "Gas shut-off valve accessible (if applicable)", default: true }
+        ]
+      },
+      {
+        title: "Security & Safety",
+        items: [
+          { id: "security_system", label: "Security/burglar alarm system", default: true },
+          { id: "exterior_lighting", label: "Adequate exterior lighting", default: true },
+          { id: "fencing", label: "Perimeter fencing (if applicable)", default: false },
+          { id: "security_cameras", label: "Security cameras installed", default: true },
+          { id: "first_aid", label: "First aid kit available", default: true },
+          { id: "safety_signs", label: "Safety signage posted", default: true },
+          { id: "slip_resistant", label: "Slip-resistant flooring in wet areas", default: true },
+          { id: "handrails", label: "Handrails on stairs", default: true }
+        ]
+      },
+      {
+        title: "Hazards & Storage",
+        items: [
+          { id: "no_combustibles", label: "No excessive combustible storage", default: true },
+          { id: "chemical_storage", label: "Chemicals properly stored (if applicable)", default: true },
+          { id: "flammable_cabinet", label: "Flammable liquids in approved cabinet", default: true },
+          { id: "no_trip_hazards", label: "No trip hazards observed", default: true },
+          { id: "housekeeping", label: "General housekeeping satisfactory", default: true },
+          { id: "waste_disposal", label: "Proper waste disposal containers", default: true },
+          { id: "dumpster_distance", label: "Dumpster 10+ feet from building", default: true }
+        ]
+      }
+    ];
+
+    let selectedRows = [];
+    let formData = {};
+    let expandedSections = checkboxSections.map(s => s.title);
+    let currentSurvey = null;
+    let isNewSurvey = false;
+
+    function getStatusClass(status) {
+      const classes = {
+        "Needs Assessment": "status-yellow",
+        "Needs Assignment": "status-orange",
+        "In Progress": "status-blue",
+        "Assigned": "status-green",
+        "Completed": "status-gray",
+        "Recommendation Review": "status-purple"
+      };
+      return classes[status] || "status-gray";
+    }
+
+    function renderGrid() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = surveys.filter(s =>
+        s.id.toLowerCase().includes(search) ||
+        s.companyName.toLowerCase().includes(search) ||
+        s.city.toLowerCase().includes(search)
+      );
+
+      document.getElementById('resultCount').textContent = filtered.length;
+
+      const tbody = document.getElementById('gridBody');
+      tbody.innerHTML = filtered.map((s, i) => `
+        <tr class="${selectedRows.includes(s.id) ? 'selected' : ''}" ondblclick="openSurveyForm('${s.id}')">
+          <td onclick="event.stopPropagation(); toggleRow('${s.id}')">
+            <input type="checkbox" class="checkbox" ${selectedRows.includes(s.id) ? 'checked' : ''}>
+          </td>
+          <td><span class="link" onclick="event.stopPropagation(); openSurveyForm('${s.id}')">${s.id}</span></td>
+          <td>${s.policy}</td>
+          <td class="truncate">${s.division}</td>
+          <td class="truncate">${s.companyName}</td>
+          <td class="truncate">${s.clientLocation}</td>
+          <td>${s.surveyType}</td>
+          <td><span class="status ${getStatusClass(s.status)}">${s.status}</span></td>
+          <td class="truncate">${s.riskConsultant}</td>
+          <td>${s.location}</td>
+          <td class="truncate">${s.city}</td>
+        </tr>
+      `).join('');
+    }
+
+    function toggleRow(id) {
+      if (selectedRows.includes(id)) {
+        selectedRows = selectedRows.filter(r => r !== id);
+      } else {
+        selectedRows.push(id);
+      }
+      renderGrid();
+    }
+
+    document.getElementById('selectAll').addEventListener('change', (e) => {
+      if (e.target.checked) {
+        selectedRows = surveys.map(s => s.id);
+      } else {
+        selectedRows = [];
+      }
+      renderGrid();
+    });
+
+    document.getElementById('searchInput').addEventListener('input', renderGrid);
+
+    // New Survey Modal
+    function openNewSurveyModal() {
+      document.getElementById('newSurveyModal').classList.remove('hidden');
+      document.getElementById('surveyTypeSelect').value = '';
+    }
+
+    function closeNewSurveyModal() {
+      document.getElementById('newSurveyModal').classList.add('hidden');
+    }
+
+    function createNewSurvey() {
+      const type = document.getElementById('surveyTypeSelect').value;
+      if (!type) return;
+
+      isNewSurvey = true;
+      currentSurvey = null;
+      closeNewSurveyModal();
+
+      // Initialize empty form
+      formData = {
+        propertyAddress: "",
+        inspectorName: "Jane Smith",
+        inspectionDate: new Date().toISOString().split('T')[0],
+        yearBuilt: "",
+        squareFootage: "",
+        numberOfStories: "1",
+        constructionType: "",
+        standardParagraph: "",
+        buildingSketchNote: "",
+        checkboxes: {}
+      };
+      checkboxSections.forEach(section => {
+        section.items.forEach(item => {
+          formData.checkboxes[item.id] = false;
+        });
+      });
+
+      document.getElementById('formTitle').textContent = `New ${type}`;
+      document.getElementById('formSubtitle').textContent = 'New Survey - Fill in all required fields';
+      renderSurveyForm();
+      document.getElementById('surveyFormModal').classList.remove('hidden');
+    }
+
+    // Survey Form
+    function openSurveyForm(id) {
+      currentSurvey = surveys.find(s => s.id === id);
+      if (!currentSurvey) return;
+
+      isNewSurvey = false;
+
+      // Initialize form with survey data
+      formData = {
+        propertyAddress: currentSurvey.address,
+        inspectorName: "Jane Smith",
+        inspectionDate: new Date().toISOString().split('T')[0],
+        yearBuilt: currentSurvey.yearBuilt,
+        squareFootage: currentSurvey.sqft,
+        numberOfStories: currentSurvey.stories,
+        constructionType: currentSurvey.construction,
+        standardParagraph: `The property inspected is located in the city of ${currentSurvey.city}. It has ${currentSurvey.construction.toLowerCase()} type of construction. It was built in ${currentSurvey.yearBuilt}. The building is currently used for commercial purposes and appears to be well-maintained. At the time of inspection, the property was occupied and operational.`,
+        buildingSketchNote: "Aerial photograph provided",
+        checkboxes: {}
+      };
+      checkboxSections.forEach(section => {
+        section.items.forEach(item => {
+          formData.checkboxes[item.id] = item.default;
+        });
+      });
+
+      document.getElementById('formTitle').textContent = '1005 UW Survey - Underwriter Form';
+      document.getElementById('formSubtitle').textContent = `Survey ID: ${currentSurvey.id} | ${currentSurvey.companyName}`;
+      renderSurveyForm();
+      document.getElementById('surveyFormModal').classList.remove('hidden');
+    }
+
+    function closeSurveyForm() {
+      document.getElementById('surveyFormModal').classList.add('hidden');
+    }
+
+    function toggleSection(title) {
+      if (expandedSections.includes(title)) {
+        expandedSections = expandedSections.filter(t => t !== title);
+      } else {
+        expandedSections.push(title);
+      }
+      renderSurveyForm();
+    }
+
+    function toggleCheckbox(id) {
+      formData.checkboxes[id] = !formData.checkboxes[id];
+      renderSurveyForm();
+    }
+
+    function updateFormField(field, value) {
+      formData[field] = value;
+    }
+
+    function renderSurveyForm() {
+      const body = document.getElementById('formBody');
+
+      body.innerHTML = `
+        <!-- Section 1: Property Information -->
+        <div class="form-section">
+          <div class="form-section-header">Section 1: Property Information</div>
+          <div class="form-section-body">
+            <div class="form-grid">
+              <div class="form-grid-full">
+                <label class="form-label">Property Address *</label>
+                <input type="text" class="form-input" value="${formData.propertyAddress}" onchange="updateFormField('propertyAddress', this.value)" placeholder="Enter property address">
+                <div class="form-hint">Copy from main page - system does not auto-fill</div>
+              </div>
+              <div>
+                <label class="form-label">Inspector Name *</label>
+                <input type="text" class="form-input" value="${formData.inspectorName}" onchange="updateFormField('inspectorName', this.value)">
+              </div>
+              <div>
+                <label class="form-label">Inspection Date *</label>
+                <input type="date" class="form-input" value="${formData.inspectionDate}" onchange="updateFormField('inspectionDate', this.value)">
+              </div>
+              <div>
+                <label class="form-label">Year Built *</label>
+                <input type="text" class="form-input" value="${formData.yearBuilt}" onchange="updateFormField('yearBuilt', this.value)" placeholder="e.g., 1992">
+                <div class="form-hint">Source from external property records service</div>
+              </div>
+              <div>
+                <label class="form-label">Square Footage *</label>
+                <input type="text" class="form-input" value="${formData.squareFootage}" onchange="updateFormField('squareFootage', this.value)" placeholder="e.g., 12,500">
+              </div>
+              <div>
+                <label class="form-label">Number of Stories *</label>
+                <select class="form-select" onchange="updateFormField('numberOfStories', this.value)">
+                  <option value="1" ${formData.numberOfStories === '1' ? 'selected' : ''}>1 Story</option>
+                  <option value="2" ${formData.numberOfStories === '2' ? 'selected' : ''}>2 Stories</option>
+                  <option value="3" ${formData.numberOfStories === '3' ? 'selected' : ''}>3 Stories</option>
+                  <option value="4" ${formData.numberOfStories === '4' ? 'selected' : ''}>4+ Stories</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label">Construction Type *</label>
+                <select class="form-select" onchange="updateFormField('constructionType', this.value)">
+                  <option value="Fire Resistive" ${formData.constructionType === 'Fire Resistive' ? 'selected' : ''}>Fire Resistive</option>
+                  <option value="Masonry Non-Combustible" ${formData.constructionType === 'Masonry Non-Combustible' ? 'selected' : ''}>Masonry Non-Combustible</option>
+                  <option value="Non-Combustible" ${formData.constructionType === 'Non-Combustible' ? 'selected' : ''}>Non-Combustible</option>
+                  <option value="Wood Frame" ${formData.constructionType === 'Wood Frame' ? 'selected' : ''}>Wood Frame</option>
+                  <option value="Metal Building" ${formData.constructionType === 'Metal Building' ? 'selected' : ''}>Metal Building</option>
+                  <option value="Joisted Masonry" ${formData.constructionType === 'Joisted Masonry' ? 'selected' : ''}>Joisted Masonry</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 2: Property Description -->
+        <div class="form-section">
+          <div class="form-section-header">
+            <span>Section 2: Property Description</span>
+            <span class="form-section-badge">Template Auto-Filled</span>
+          </div>
+          <div class="form-section-body">
+            <label class="form-label">Standard Description Paragraph *</label>
+            <textarea class="form-input form-textarea" onchange="updateFormField('standardParagraph', this.value)" placeholder="Enter property description...">${formData.standardParagraph}</textarea>
+            <div class="form-hint">Standard template with blanks filled in. Describes general property characteristics.</div>
+          </div>
+        </div>
+
+        <!-- Section 3: Building Features Checklist -->
+        <div class="form-section">
+          <div class="form-section-header">
+            <span>Section 3: Building Features & Safety Checklist</span>
+            <span style="font-size:12px;display:flex;align-items:center;gap:6px;">&#9888; Pre-filled with standard responses - modify as needed</span>
+          </div>
+          <div class="form-section-body">
+            ${checkboxSections.map(section => {
+              const checkedCount = section.items.filter(i => formData.checkboxes[i.id]).length;
+              const isExpanded = expandedSections.includes(section.title);
+              return `
+                <div class="checkbox-section">
+                  <div class="checkbox-section-header" onclick="toggleSection('${section.title}')">
+                    <span class="checkbox-section-title">${section.title}</span>
+                    <div style="display:flex;align-items:center;gap:12px;">
+                      <span class="checkbox-section-count">${checkedCount}/${section.items.length} Yes</span>
+                      <span class="checkbox-section-arrow ${isExpanded ? 'expanded' : ''}">&#9654;</span>
+                    </div>
+                  </div>
+                  <div class="checkbox-section-body ${isExpanded ? '' : 'hidden'}">
+                    ${section.items.map(item => `
+                      <div class="checkbox-item" onclick="toggleCheckbox('${item.id}')">
+                        <div class="checkbox-box ${formData.checkboxes[item.id] ? 'checked' : ''}">
+                          ${formData.checkboxes[item.id] ? '&#10003;' : ''}
+                        </div>
+                        <span class="checkbox-label">${item.label}</span>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+
+        <!-- Section 4: Building Sketch -->
+        <div class="form-section">
+          <div class="form-section-header">Section 4: Building Sketch / Aerial Photo</div>
+          <div class="form-section-body">
+            <div class="upload-area">
+              <div class="upload-icon">&#128444;</div>
+              <p class="upload-text">Upload building sketch or aerial photograph</p>
+              <p class="upload-hint">System requires sketch for buildings 100+ sq ft</p>
+              <button class="btn btn-blue">&#128228; Upload Image</button>
+            </div>
+            <div style="margin-top:16px;">
+              <label class="form-label">Or enter note:</label>
+              <input type="text" class="form-input" value="${formData.buildingSketchNote}" onchange="updateFormField('buildingSketchNote', this.value)" placeholder="e.g., Aerial photograph provided">
+              <div class="form-hint">Often "aerial photograph provided" is sufficient when photos are included</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-top:1px solid #e5e7eb;">
+          <div style="font-size:13px;color:#6b7280;">* Required fields | Form auto-saves every 30 seconds</div>
+          <div style="display:flex;gap:12px;">
+            <button class="btn btn-secondary" onclick="closeSurveyForm()">Cancel</button>
+            <button class="btn btn-primary" onclick="saveForm()">&#128190; Save & Complete</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function saveForm() {
+      closeSurveyForm();
+      showToast('Survey saved successfully!');
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMessage').textContent = message;
+      toast.classList.remove('hidden');
+      setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 3000);
+    }
+
+    // Initialize
+    renderGrid();
+  </script>
+</body>
+</html>

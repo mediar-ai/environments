@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SAP Business One</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f5f5f5; min-height: 100vh; }
+
+    /* SAP Colors */
+    :root {
+      --sap-orange: #e1692c;
+      --sap-dark-blue: #0a246a;
+      --sap-gray: #333333;
+    }
+
+    /* Shell */
+    .shell { display: flex; flex-direction: column; height: 100vh; }
+
+    /* Title Bar */
+    .title-bar {
+      background: linear-gradient(to bottom, #3366cc, #0a246a);
+      color: white;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      font-size: 12px;
+    }
+    .title-bar .logo { font-weight: bold; margin-right: 16px; }
+
+    /* Menu Bar */
+    .menu-bar {
+      background: #f0f0f0;
+      border-bottom: 1px solid #c0c0c0;
+      display: flex;
+      height: 24px;
+      align-items: center;
+      padding: 0 4px;
+    }
+    .menu-item {
+      padding: 2px 10px;
+      font-size: 11px;
+      cursor: pointer;
+      color: #333;
+    }
+    .menu-item:hover { background: #e0e0e0; }
+
+    /* Toolbar */
+    .toolbar {
+      background: linear-gradient(to bottom, #fafafa, #e8e8e8);
+      border-bottom: 1px solid #c0c0c0;
+      padding: 4px 8px;
+      display: flex;
+      gap: 4px;
+    }
+    .toolbar-btn {
+      width: 24px;
+      height: 24px;
+      border: 1px solid #c0c0c0;
+      background: white;
+      border-radius: 2px;
+      cursor: pointer;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .toolbar-btn:hover { background: #e8f4ff; border-color: #0078d4; }
+    .toolbar-sep { width: 1px; background: #c0c0c0; margin: 0 4px; }
+
+    /* Main Content */
+    .main { display: flex; flex: 1; }
+
+    /* Easy Access Menu */
+    .easy-access {
+      width: 220px;
+      background: white;
+      border-right: 1px solid #c0c0c0;
+      overflow-y: auto;
+    }
+    .easy-access-header {
+      background: var(--sap-dark-blue);
+      color: white;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    .tree-item {
+      display: flex;
+      align-items: center;
+      padding: 4px 8px;
+      font-size: 11px;
+      cursor: pointer;
+      color: #333;
+    }
+    .tree-item:hover { background: #e8f4ff; }
+    .tree-item.selected { background: #cce5ff; }
+    .tree-icon { width: 16px; height: 16px; margin-right: 6px; font-size: 10px; }
+    .tree-expand { width: 16px; text-align: center; color: #666; }
+    .tree-level-1 { padding-left: 24px; }
+    .tree-level-2 { padding-left: 40px; }
+
+    /* Content Area */
+    .content-area {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f5f5f5;
+    }
+
+    /* Welcome Card */
+    .welcome-card {
+      text-align: center;
+      padding: 32px;
+      background: white;
+      border: 1px solid #d0d0d0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      max-width: 400px;
+      border-radius: 4px;
+    }
+    .sap-logo {
+      width: 64px;
+      height: 64px;
+      background: var(--sap-orange);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      box-shadow: 0 2px 8px rgba(225,105,44,0.3);
+    }
+    .sap-logo span { color: white; font-size: 18px; font-weight: 900; }
+    .welcome-card h1 { font-size: 20px; font-weight: 600; color: #333; margin-bottom: 4px; }
+    .welcome-card .subtitle { font-size: 11px; color: #666; margin-bottom: 24px; }
+
+    /* Company Info */
+    .company-info {
+      background: #f9f9f9;
+      border: 1px solid #e0e0e0;
+      padding: 16px;
+      margin-bottom: 16px;
+      border-radius: 4px;
+      text-align: left;
+    }
+    .company-info p { font-size: 11px; margin-bottom: 4px; color: #333; }
+    .company-info strong { color: var(--sap-orange); }
+
+    /* Quick Access */
+    .quick-access { text-align: left; }
+    .quick-access-title { font-size: 11px; font-weight: 600; color: var(--sap-orange); margin-bottom: 8px; }
+    .quick-links { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .quick-link {
+      padding: 10px;
+      background: white;
+      border: 1px solid #d0d0d0;
+      border-radius: 4px;
+      font-size: 11px;
+      color: #333;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .quick-link:hover { background: var(--sap-orange); color: white; border-color: var(--sap-orange); }
+
+    .version-note { margin-top: 24px; padding-top: 16px; border-top: 1px solid #e0e0e0; font-size: 10px; color: #888; }
+
+    /* Status Bar */
+    .status-bar {
+      background: #f0f0f0;
+      border-top: 1px solid #c0c0c0;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      font-size: 10px;
+      color: #666;
+    }
+    .status-bar .status-item { margin-right: 16px; }
+    .status-bar .status-right { margin-left: auto; }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <!-- Title Bar -->
+    <div class="title-bar">
+      <span class="logo">SAP Business One 10.0</span>
+      <span>ACME Corporation - SBO_ACME_LIVE</span>
+    </div>
+
+    <!-- Menu Bar -->
+    <div class="menu-bar">
+      <div class="menu-item">File</div>
+      <div class="menu-item">Edit</div>
+      <div class="menu-item">View</div>
+      <div class="menu-item">Data</div>
+      <div class="menu-item">Goto</div>
+      <div class="menu-item">Modules</div>
+      <div class="menu-item">Tools</div>
+      <div class="menu-item">Window</div>
+      <div class="menu-item">Help</div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <button class="toolbar-btn" title="New">+</button>
+      <button class="toolbar-btn" title="Find">&#128269;</button>
+      <button class="toolbar-btn" title="First">|&#9664;</button>
+      <button class="toolbar-btn" title="Previous">&#9664;</button>
+      <button class="toolbar-btn" title="Next">&#9654;</button>
+      <button class="toolbar-btn" title="Last">&#9654;|</button>
+      <div class="toolbar-sep"></div>
+      <button class="toolbar-btn" title="Add">&#10003;</button>
+      <button class="toolbar-btn" title="Cancel">&#10005;</button>
+      <div class="toolbar-sep"></div>
+      <button class="toolbar-btn" title="Copy">&#128203;</button>
+      <button class="toolbar-btn" title="Print">&#128424;</button>
+      <button class="toolbar-btn" title="Email">&#9993;</button>
+    </div>
+
+    <!-- Main -->
+    <div class="main">
+      <!-- Easy Access -->
+      <div class="easy-access">
+        <div class="easy-access-header">SAP Business One Easy Access</div>
+        <div class="tree-item selected">
+          <span class="tree-expand">&#9660;</span>
+          <span class="tree-icon">&#128193;</span>
+          Modules
+        </div>
+        <div class="tree-item tree-level-1">
+          <span class="tree-expand">&#9654;</span>
+          <span class="tree-icon">&#128176;</span>
+          Administration
+        </div>
+        <div class="tree-item tree-level-1">
+          <span class="tree-expand">&#9654;</span>
+          <span class="tree-icon">&#128176;</span>
+          Financials
+        </div>
+        <div class="tree-item tree-level-1">
+          <span class="tree-expand">&#9654;</span>
+          <span class="tree-icon">&#128176;</span>
+          Sales - A/R
+        </div>
+        <div class="tree-item tree-level-1">
+          <span class="tree-expand">&#9654;</span>
+          <span class="tree-icon">&#128176;</span>
+          Purchasing - A/P
+        </div>
+        <div class="tree-item tree-level-1">
+          <span class="tree-expand">&#9654;</span>
+          <span class="tree-icon">&#128176;</span>
+          Business Partners
+        </div>
+        <div class="tree-item tree-level-1">
+          <span class="tree-expand">&#9654;</span>
+          <span class="tree-icon">&#128176;</span>
+          Banking
+        </div>
+        <div class="tree-item tree-level-1">
+          <span class="tree-expand">&#9654;</span>
+          <span class="tree-icon">&#128176;</span>
+          Inventory
+        </div>
+        <div class="tree-item tree-level-1">
+          <span class="tree-expand">&#9654;</span>
+          <span class="tree-icon">&#128176;</span>
+          Production
+        </div>
+        <div class="tree-item tree-level-1">
+          <span class="tree-expand">&#9654;</span>
+          <span class="tree-icon">&#128176;</span>
+          MRP
+        </div>
+        <div class="tree-item tree-level-1">
+          <span class="tree-expand">&#9654;</span>
+          <span class="tree-icon">&#128176;</span>
+          Service
+        </div>
+        <div class="tree-item tree-level-1">
+          <span class="tree-expand">&#9654;</span>
+          <span class="tree-icon">&#128176;</span>
+          Human Resources
+        </div>
+        <div class="tree-item tree-level-1">
+          <span class="tree-expand">&#9654;</span>
+          <span class="tree-icon">&#128200;</span>
+          Reports
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="content-area">
+        <div class="welcome-card">
+          <div class="sap-logo">
+            <span>SAP</span>
+          </div>
+          <h1>SAP Business One</h1>
+          <p class="subtitle">Select a module from the menu on the left to begin</p>
+
+          <div class="company-info">
+            <p><strong>Company:</strong> ACME Corporation</p>
+            <p><strong>Database:</strong> SBO_ACME_LIVE</p>
+            <p><strong>User:</strong> manager</p>
+            <p><strong>Server:</strong> SBOSERVER01</p>
+          </div>
+
+          <div class="quick-access">
+            <p class="quick-access-title">Quick Access:</p>
+            <div class="quick-links">
+              <div class="quick-link" onclick="alert('Opening Journal Entry...')">Journal Entry</div>
+              <div class="quick-link" onclick="alert('Opening A/R Invoice...')">A/R Invoice</div>
+              <div class="quick-link" onclick="alert('Opening A/P Invoice...')">A/P Invoice</div>
+              <div class="quick-link" onclick="alert('Opening Reports...')">Reports</div>
+            </div>
+          </div>
+
+          <p class="version-note">Use the button in the title bar to switch to S/4HANA version</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <span class="status-item">Ready</span>
+      <span class="status-item">Company: ACME Corporation</span>
+      <span class="status-item">User: manager</span>
+      <span class="status-right">SAP Business One 10.0 FP 2305</span>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mira Health - Notes Queue</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f3f4f6; }
+
+    /* Layout */
+    .app { display: flex; min-height: 100vh; }
+
+    /* Sidebar */
+    .sidebar {
+      width: 256px;
+      background: #1e293b;
+      color: white;
+      display: flex;
+      flex-direction: column;
+    }
+    .sidebar-header {
+      height: 56px;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      border-bottom: 1px solid #334155;
+    }
+    .sidebar-logo {
+      width: 32px;
+      height: 32px;
+      background: #6366f1;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+    .sidebar-title { margin-left: 12px; font-weight: 600; font-size: 18px; }
+
+    .nav { flex: 1; padding: 16px 0; }
+    .nav-section { padding: 0 12px; margin-bottom: 16px; }
+    .nav-section-title { font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; padding: 0 8px; margin-bottom: 8px; }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      color: #cbd5e1;
+      transition: all 0.15s;
+      font-size: 14px;
+    }
+    .nav-item:hover { background: #334155; }
+    .nav-item.active { background: #6366f1; color: white; }
+    .nav-icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; }
+
+    .emr-status {
+      padding: 12px;
+      border-top: 1px solid #334155;
+    }
+    .emr-status-card {
+      background: #334155;
+      border-radius: 8px;
+      padding: 12px;
+    }
+    .emr-status-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .status-dot { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; }
+    .emr-status-text { font-size: 14px; color: #cbd5e1; }
+    .emr-name { font-size: 12px; color: #94a3b8; }
+
+    /* Main Content */
+    .main { flex: 1; display: flex; flex-direction: column; }
+
+    /* Header */
+    .header {
+      height: 56px;
+      background: white;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+    }
+    .header-left { display: flex; align-items: center; gap: 16px; }
+    .collapse-btn { padding: 8px; cursor: pointer; border-radius: 8px; border: none; background: none; }
+    .collapse-btn:hover { background: #f3f4f6; }
+    .page-title { font-size: 18px; font-weight: 600; color: #1f2937; }
+    .header-right { display: flex; align-items: center; gap: 12px; }
+    .notification-btn {
+      position: relative;
+      padding: 8px;
+      cursor: pointer;
+      border-radius: 8px;
+      border: none;
+      background: none;
+    }
+    .notification-btn:hover { background: #f3f4f6; }
+    .notification-dot { position: absolute; top: 4px; right: 4px; width: 8px; height: 8px; background: #ef4444; border-radius: 50%; }
+    .user-info { display: flex; align-items: center; gap: 8px; padding-left: 12px; border-left: 1px solid #e5e7eb; }
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      background: #e0e7ff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #6366f1;
+      font-size: 14px;
+    }
+    .user-name { font-size: 14px; font-weight: 500; color: #374151; }
+
+    /* Content */
+    .content { flex: 1; display: flex; }
+
+    /* Patient List Panel */
+    .patient-list-panel {
+      width: 384px;
+      background: white;
+      border-right: 1px solid #e5e7eb;
+      display: flex;
+      flex-direction: column;
+    }
+    .search-section { padding: 16px; border-bottom: 1px solid #e5e7eb; }
+    .search-input {
+      width: 100%;
+      padding: 8px 12px 8px 36px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+    .search-input:focus { outline: none; border-color: #6366f1; }
+    .search-wrapper { position: relative; }
+    .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 14px; }
+    .filter-buttons { display: flex; gap: 8px; align-items: center; }
+    .filter-btn {
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 500;
+      border-radius: 8px;
+      cursor: pointer;
+      border: none;
+      background: #f3f4f6;
+      color: #4b5563;
+      transition: all 0.15s;
+    }
+    .filter-btn:hover { background: #e5e7eb; }
+    .filter-btn.active { background: #e0e7ff; color: #6366f1; }
+    .filter-btn.active-green { background: #dcfce7; color: #16a34a; }
+    .filter-btn.active-amber { background: #fef3c7; color: #d97706; }
+    .refresh-btn { margin-left: auto; padding: 6px; border-radius: 6px; border: none; background: none; cursor: pointer; }
+    .refresh-btn:hover { background: #f3f4f6; }
+
+    .patient-count { padding: 8px 16px; font-size: 12px; color: #6b7280; }
+    .patient-list { flex: 1; overflow-y: auto; }
+    .patient-item {
+      padding: 16px;
+      border-bottom: 1px solid #f3f4f6;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .patient-item:hover { background: #f9fafb; }
+    .patient-item.selected { background: #eef2ff; border-left: 4px solid #6366f1; }
+    .patient-item-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+    .patient-name { font-weight: 500; color: #1f2937; }
+    .patient-meta { font-size: 12px; color: #6b7280; }
+    .patient-item-footer { display: flex; align-items: center; gap: 12px; font-size: 14px; }
+    .note-type { display: flex; align-items: center; gap: 4px; color: #4b5563; }
+    .visit-date { display: flex; align-items: center; gap: 4px; color: #6b7280; }
+
+    /* Status Badge */
+    .badge {
+      padding: 2px 8px;
+      font-size: 12px;
+      font-weight: 500;
+      border-radius: 4px;
+    }
+    .badge-ready { background: #dcfce7; color: #16a34a; }
+    .badge-pending { background: #fef3c7; color: #d97706; }
+
+    /* Note Viewer Panel */
+    .note-viewer {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: #f9fafb;
+    }
+    .note-header {
+      background: white;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 16px;
+    }
+    .note-header-top { display: flex; justify-content: space-between; align-items: flex-start; }
+    .note-patient-info h2 {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 20px;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 4px;
+    }
+    .note-patient-meta { font-size: 14px; color: #6b7280; }
+    .note-emr-info { display: flex; align-items: center; gap: 16px; margin-top: 8px; font-size: 14px; }
+    .emr-connected { display: flex; align-items: center; gap: 6px; color: #4b5563; }
+    .emr-connected .dot { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; }
+    .generated-time { display: flex; align-items: center; gap: 6px; color: #6b7280; }
+
+    .copy-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+    }
+    .copy-btn.primary { background: #6366f1; color: white; }
+    .copy-btn.primary:hover { background: #4f46e5; }
+    .copy-btn.success { background: #22c55e; color: white; }
+
+    /* Note Content */
+    .note-content { flex: 1; padding: 24px; overflow-y: auto; }
+    .note-card {
+      background: white;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .note-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid #f3f4f6;
+      background: #f9fafb;
+      border-radius: 12px 12px 0 0;
+    }
+    .note-type-label { display: flex; align-items: center; gap: 8px; font-weight: 500; color: #374151; }
+    .note-type-icon { color: #6366f1; }
+    .note-actions { display: flex; gap: 8px; }
+    .note-action-btn {
+      padding: 8px;
+      border-radius: 8px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      color: #6b7280;
+    }
+    .note-action-btn:hover { background: #e5e7eb; }
+    .note-action-btn.copied { color: #22c55e; }
+    .note-text {
+      padding: 24px;
+      white-space: pre-wrap;
+      font-family: inherit;
+      font-size: 14px;
+      color: #374151;
+      line-height: 1.6;
+    }
+
+    /* Pending State */
+    .pending-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      padding: 48px;
+    }
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid #e5e7eb;
+      border-top-color: #6366f1;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .pending-text { font-weight: 500; color: #4b5563; }
+    .pending-subtext { font-size: 14px; color: #6b7280; margin-top: 4px; }
+
+    /* Workflow Hint */
+    .workflow-hint {
+      background: #f0fdf4;
+      border-top: 1px solid #bbf7d0;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .workflow-icon { color: #22c55e; font-size: 20px; }
+    .workflow-text h4 { font-weight: 500; color: #166534; }
+    .workflow-text p { font-size: 14px; color: #16a34a; }
+
+    /* Icons (simple text-based) */
+    .icon { display: inline-flex; align-items: center; justify-content: center; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">&#9764;</div>
+        <span class="sidebar-title">Mira Health</span>
+      </div>
+      <nav class="nav">
+        <div class="nav-section">
+          <div class="nav-section-title">Main</div>
+          <div class="nav-item"><span class="nav-icon">&#127968;</span> Dashboard</div>
+          <div class="nav-item active"><span class="nav-icon">&#128196;</span> Notes Queue</div>
+          <div class="nav-item"><span class="nav-icon">&#128101;</span> Patients</div>
+          <div class="nav-item"><span class="nav-icon">&#128197;</span> Schedule</div>
+          <div class="nav-item"><span class="nav-icon">&#128193;</span> Archive</div>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">System</div>
+          <div class="nav-item"><span class="nav-icon">&#9881;</span> Settings</div>
+        </div>
+      </nav>
+      <div class="emr-status">
+        <div class="emr-status-card">
+          <div class="emr-status-header">
+            <span class="status-dot"></span>
+            <span class="emr-status-text">EMR Connected</span>
+          </div>
+          <div class="emr-name">Greenway Health</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <div class="main">
+      <!-- Header -->
+      <header class="header">
+        <div class="header-left">
+          <button class="collapse-btn">&#9776;</button>
+          <h1 class="page-title">Notes Queue</h1>
+        </div>
+        <div class="header-right">
+          <button class="notification-btn">
+            &#128276;
+            <span class="notification-dot"></span>
+          </button>
+          <div class="user-info">
+            <div class="user-avatar">&#128100;</div>
+            <span class="user-name">Dr. Sarah Chen</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Content -->
+      <div class="content">
+        <!-- Patient List -->
+        <div class="patient-list-panel">
+          <div class="search-section">
+            <div class="search-wrapper">
+              <span class="search-icon">&#128269;</span>
+              <input type="text" class="search-input" placeholder="Search by name or MRN..." id="searchInput">
+            </div>
+            <div class="filter-buttons">
+              <button class="filter-btn active" data-filter="all">All</button>
+              <button class="filter-btn" data-filter="Ready">Ready</button>
+              <button class="filter-btn" data-filter="Pending">Pending</button>
+              <button class="refresh-btn" title="Refresh">&#8635;</button>
+            </div>
+          </div>
+          <div class="patient-count"><span id="patientCount">4</span> patients with notes</div>
+          <div class="patient-list" id="patientList"></div>
+        </div>
+
+        <!-- Note Viewer -->
+        <div class="note-viewer">
+          <div class="note-header" id="noteHeader"></div>
+          <div class="note-content" id="noteContent"></div>
+          <div class="workflow-hint" id="workflowHint" style="display: none;">
+            <span class="workflow-icon">&#10003;</span>
+            <div class="workflow-text">
+              <h4>Note copied to clipboard!</h4>
+              <p>Switch to Greenway EHR &#8594; Open patient chart &#8594; Open in Word &#8594; Paste note &#8594; Upload to EMR</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Patient Data
+    const patients = [
+      {
+        id: "P001",
+        name: "John Smith",
+        dob: "03/15/1958",
+        age: 67,
+        mrn: "MRN-4521",
+        noteType: "Progress Note",
+        visitDate: "01/08/2026",
+        status: "Ready",
+        emr: "Greenway Health",
+        generatedAt: "01/08/2026 09:15 AM",
+        note: `PROGRESS NOTE
+
+PATIENT: John Smith
+MRN: MRN-4521
+DATE OF SERVICE: 01/08/2026
+PROVIDER: Dr. Sarah Chen, MD
+
+CHIEF COMPLAINT:
+Follow-up for Type 2 Diabetes Mellitus management
+
+HISTORY OF PRESENT ILLNESS:
+67-year-old male presents for routine diabetes follow-up. Patient reports good compliance with metformin 1000mg BID. He states he has been checking blood sugars regularly with most readings between 120-160 mg/dL fasting. Denies polyuria, polydipsia, or polyphagia. No hypoglycemic episodes. Reports occasional numbness in feet bilaterally. Last HbA1c 3 months ago was 7.4%.
+
+CURRENT MEDICATIONS:
+1. Metformin 1000mg PO BID
+2. Lisinopril 10mg PO daily
+3. Atorvastatin 20mg PO daily
+4. Aspirin 81mg PO daily
+
+ALLERGIES: Penicillin (rash)
+
+VITAL SIGNS:
+- Blood Pressure: 138/82 mmHg
+- Heart Rate: 76 bpm
+- Temperature: 98.2°F
+- Weight: 198 lbs
+- Height: 5'10"
+- BMI: 28.4
+
+PHYSICAL EXAMINATION:
+General: Well-appearing, no acute distress
+HEENT: Normocephalic, atraumatic. Pupils equal, round, reactive to light.
+Cardiovascular: Regular rate and rhythm, no murmurs
+Respiratory: Clear to auscultation bilaterally
+Extremities: No edema. Decreased sensation to monofilament testing in bilateral feet. Pedal pulses present bilaterally.
+
+LABORATORY RESULTS:
+- HbA1c: 7.2% (improved from 7.4%)
+- Fasting Glucose: 142 mg/dL
+- Creatinine: 1.1 mg/dL
+- eGFR: 68 mL/min
+- Lipid Panel: TC 185, LDL 98, HDL 45, TG 150
+
+ASSESSMENT AND PLAN:
+1. Type 2 Diabetes Mellitus - Improved control
+   - Continue metformin 1000mg BID
+   - HbA1c at goal <7.5%
+   - Repeat HbA1c in 3 months
+
+2. Diabetic Peripheral Neuropathy - Mild
+   - Start gabapentin 100mg TID, titrate as needed
+   - Reinforce foot care education
+   - Referral to podiatry for annual foot exam
+
+3. Hypertension - Controlled
+   - Continue lisinopril 10mg daily
+   - Target BP <140/90
+
+4. Hyperlipidemia - At goal
+   - Continue atorvastatin 20mg daily
+   - LDL at goal <100
+
+FOLLOW-UP: Return in 3 months for diabetes recheck. Sooner if concerns.
+
+Electronically prepared by Mira Health
+Provider signature pending
+
+_______________________________________
+Sarah Chen, MD
+Internal Medicine`
+      },
+      {
+        id: "P002",
+        name: "Mary Johnson",
+        dob: "07/22/1975",
+        age: 50,
+        mrn: "MRN-3892",
+        noteType: "New Patient",
+        visitDate: "01/08/2026",
+        status: "Ready",
+        emr: "Greenway Health",
+        generatedAt: "01/08/2026 10:32 AM",
+        note: `NEW PATIENT EVALUATION
+
+PATIENT: Mary Johnson
+MRN: MRN-3892
+DATE OF SERVICE: 01/08/2026
+PROVIDER: Dr. Sarah Chen, MD
+
+CHIEF COMPLAINT:
+New patient evaluation, establish care
+
+HISTORY OF PRESENT ILLNESS:
+50-year-old female presents to establish primary care. Recently moved to the area 2 months ago. Patient reports history of hypertension diagnosed 5 years ago, currently on medication. Also reports seasonal allergies and occasional migraine headaches. Denies chest pain, shortness of breath, or recent illness.
+
+PAST MEDICAL HISTORY:
+1. Hypertension - diagnosed 2021
+2. Migraine headaches - episodic, 2-3 per month
+3. Seasonal allergic rhinitis
+
+CURRENT MEDICATIONS:
+1. Amlodipine 5mg PO daily
+2. Sumatriptan 50mg PRN migraine
+3. Cetirizine 10mg PO daily PRN allergies
+
+ALLERGIES: NKDA
+
+VITAL SIGNS:
+- Blood Pressure: 132/84 mmHg
+- Heart Rate: 72 bpm
+- Temperature: 98.4°F
+- Weight: 156 lbs
+- Height: 5'5"
+- BMI: 26.0
+
+ASSESSMENT AND PLAN:
+1. Hypertension - Controlled on current regimen
+   - Continue amlodipine 5mg daily
+   - Order baseline labs: CMP, lipid panel, CBC, TSH
+   - Target BP <130/80
+
+2. Health Maintenance
+   - Due for mammogram - order screening mammogram
+   - Due for colonoscopy (age 50) - referral to GI
+   - Update immunizations at next visit
+
+FOLLOW-UP: Return in 2-4 weeks to review lab results.
+
+Electronically prepared by Mira Health
+Provider signature pending
+
+_______________________________________
+Sarah Chen, MD
+Internal Medicine`
+      },
+      {
+        id: "P003",
+        name: "Robert Davis",
+        dob: "11/03/1980",
+        age: 45,
+        mrn: "MRN-2847",
+        noteType: "Office Visit",
+        visitDate: "01/08/2026",
+        status: "Ready",
+        emr: "Greenway Health",
+        generatedAt: "01/08/2026 11:48 AM",
+        note: `OFFICE VISIT NOTE
+
+PATIENT: Robert Davis
+MRN: MRN-2847
+DATE OF SERVICE: 01/08/2026
+PROVIDER: Dr. Sarah Chen, MD
+
+CHIEF COMPLAINT:
+Upper respiratory infection symptoms x 5 days
+
+HISTORY OF PRESENT ILLNESS:
+45-year-old male presents with 5 days of nasal congestion, sore throat, and nonproductive cough. Patient reports symptoms started gradually with runny nose and mild sore throat, progressing to significant congestion. Denies fever, though reports feeling "feverish" at times.
+
+VITAL SIGNS:
+- Blood Pressure: 124/78 mmHg
+- Heart Rate: 82 bpm
+- Temperature: 99.1°F
+- SpO2: 98% on room air
+
+PHYSICAL EXAMINATION:
+General: Mildly ill-appearing male
+HEENT: Erythematous turbinates with clear discharge. Mild pharyngeal erythema, no exudates.
+Respiratory: Clear to auscultation bilaterally
+
+ASSESSMENT AND PLAN:
+1. Acute Upper Respiratory Infection (Common Cold) - Viral
+   - Supportive care recommended
+   - Increase fluid intake, rest as needed
+   - OTC decongestants and antihistamines
+   - No antibiotics indicated at this time
+
+FOLLOW-UP: Return if symptoms worsen or persist >10 days.
+
+Electronically prepared by Mira Health
+Provider signature pending
+
+_______________________________________
+Sarah Chen, MD
+Internal Medicine`
+      },
+      {
+        id: "P004",
+        name: "Emily Thompson",
+        dob: "02/14/1992",
+        age: 33,
+        mrn: "MRN-5123",
+        noteType: "Progress Note",
+        visitDate: "01/07/2026",
+        status: "Pending",
+        emr: "Greenway Health",
+        generatedAt: "Processing...",
+        note: ""
+      }
+    ];
+
+    let selectedPatient = patients[0];
+    let currentFilter = 'all';
+    let searchQuery = '';
+    let copiedNote = false;
+
+    function getStatusBadgeClass(status) {
+      return status === 'Ready' ? 'badge-ready' : 'badge-pending';
+    }
+
+    function renderPatientList() {
+      const list = document.getElementById('patientList');
+      const filtered = patients.filter(p => {
+        const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                              p.mrn.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesFilter = currentFilter === 'all' || p.status === currentFilter;
+        return matchesSearch && matchesFilter;
+      });
+
+      document.getElementById('patientCount').textContent = filtered.length;
+
+      list.innerHTML = filtered.map(p => `
+        <div class="patient-item ${selectedPatient.id === p.id ? 'selected' : ''}" data-id="${p.id}">
+          <div class="patient-item-header">
+            <div>
+              <div class="patient-name">${p.name}</div>
+              <div class="patient-meta">${p.mrn} | DOB: ${p.dob}</div>
+            </div>
+            <span class="badge ${getStatusBadgeClass(p.status)}">${p.status}</span>
+          </div>
+          <div class="patient-item-footer">
+            <span class="note-type">&#128196; ${p.noteType}</span>
+            <span class="visit-date">&#128337; ${p.visitDate}</span>
+          </div>
+        </div>
+      `).join('');
+
+      // Add click handlers
+      list.querySelectorAll('.patient-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const patient = patients.find(p => p.id === item.dataset.id);
+          if (patient) {
+            selectedPatient = patient;
+            copiedNote = false;
+            renderPatientList();
+            renderNoteViewer();
+          }
+        });
+      });
+    }
+
+    function renderNoteViewer() {
+      const header = document.getElementById('noteHeader');
+      const content = document.getElementById('noteContent');
+      const hint = document.getElementById('workflowHint');
+
+      header.innerHTML = `
+        <div class="note-header-top">
+          <div class="note-patient-info">
+            <h2>
+              ${selectedPatient.name}
+              <span class="badge ${getStatusBadgeClass(selectedPatient.status)}">${selectedPatient.status}</span>
+            </h2>
+            <p class="note-patient-meta">${selectedPatient.mrn} | DOB: ${selectedPatient.dob} (${selectedPatient.age}y) | ${selectedPatient.noteType}</p>
+            <div class="note-emr-info">
+              <span class="emr-connected"><span class="dot"></span> Connected to ${selectedPatient.emr}</span>
+              <span class="generated-time">&#128337; Generated: ${selectedPatient.generatedAt}</span>
+            </div>
+          </div>
+          ${selectedPatient.status === 'Ready' ? `
+            <button class="copy-btn ${copiedNote ? 'success' : 'primary'}" id="copyBtn">
+              ${copiedNote ? '&#10003; Copied to Clipboard!' : '&#128203; Copy Note to Clipboard'}
+            </button>
+          ` : ''}
+        </div>
+      `;
+
+      if (selectedPatient.status === 'Ready') {
+        content.innerHTML = `
+          <div class="note-card">
+            <div class="note-toolbar">
+              <span class="note-type-label"><span class="note-type-icon">&#128196;</span> ${selectedPatient.noteType}</span>
+              <div class="note-actions">
+                <button class="note-action-btn ${copiedNote ? 'copied' : ''}" id="toolbarCopyBtn" title="Copy to clipboard">
+                  ${copiedNote ? '&#10003;' : '&#128203;'}
+                </button>
+                <button class="note-action-btn" title="Open in EMR">&#128279;</button>
+              </div>
+            </div>
+            <pre class="note-text">${selectedPatient.note}</pre>
+          </div>
+        `;
+
+        // Add copy handlers
+        const copyButtons = [document.getElementById('copyBtn'), document.getElementById('toolbarCopyBtn')];
+        copyButtons.forEach(btn => {
+          if (btn) {
+            btn.addEventListener('click', async () => {
+              await navigator.clipboard.writeText(selectedPatient.note);
+              copiedNote = true;
+              renderNoteViewer();
+              setTimeout(() => {
+                copiedNote = false;
+                renderNoteViewer();
+              }, 3000);
+            });
+          }
+        });
+      } else {
+        content.innerHTML = `
+          <div class="pending-state">
+            <div class="spinner"></div>
+            <p class="pending-text">Generating note...</p>
+            <p class="pending-subtext">This may take a few moments</p>
+          </div>
+        `;
+      }
+
+      hint.style.display = copiedNote ? 'flex' : 'none';
+    }
+
+    // Initialize
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      searchQuery = e.target.value;
+      renderPatientList();
+    });
+
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active', 'active-green', 'active-amber'));
+        const filter = btn.dataset.filter;
+        currentFilter = filter;
+        btn.classList.add('active');
+        if (filter === 'Ready') btn.classList.add('active-green');
+        if (filter === 'Pending') btn.classList.add('active-amber');
+        renderPatientList();
+      });
+    });
+
+    renderPatientList();
+    renderNoteViewer();
+  </script>
+</body>
+</html>
